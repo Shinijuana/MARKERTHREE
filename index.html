@@ -152,108 +152,35 @@
 </a-scene>
 
   <!-- KEEPVISIBLE -->
-<script>
- AFRAME.registerComponent('fix-on-image-found', {
-        schema: {
-          initialPosition: { type: 'vec3', default: { x: 0, y: 0, z: 0 } },
-          initialScale: { type: 'vec3', default: { x: 1, y: 1, z: 1 } },
-          initialRotation: { type: 'vec3', default: { x: 0, y: 0, z: 0 } }
-        },
 
-        init() {
-          const el = this.el;
-          const sceneEl = el.sceneEl;
-          const camera = sceneEl.camera;
+ <!-- KEEPVISIBLE -->
+    <script>
+AFRAME.registerComponent('keepvisibleonlost', {
+  init() {
+    const el = this.el;
+    const startImage = document.getElementById('startImage');
+    
 
-          // Funzione per ottenere la posizione del modello rispetto alla telecamera
-          const getModelPositionRelativeToCamera = (model) => {
-            const modelWorldPosition = new AFRAME.THREE.Vector3();
-            const modelWorldRotation = new AFRAME.THREE.Euler();
-            const modelWorldScale = new AFRAME.THREE.Vector3();
+    // Inizialmente il modello è visibile
+    el.object3D.visible = true;
 
-            model.object3D.getWorldPosition(modelWorldPosition);
-            model.object3D.getWorldRotation(modelWorldRotation);
-            model.object3D.getWorldScale(modelWorldScale);
+    // Evento targetFound
+    el.sceneEl.addEventListener('targetFound', (event) => {
+      console.log('Target found');
+   startImage.setAttribute('visible', 'false');
+      el.object3D.visible = true;
+    });
 
-            // Calcola la posizione relativa alla telecamera
-            const modelCameraPosition = modelWorldPosition.clone().sub(camera.el.object3D.position);
-
-            return {
-              position: modelCameraPosition,
-              scale: modelWorldScale,
-              rotation: modelWorldRotation
-            };
-          };
-
-          // Evento targetFound
-          sceneEl.addEventListener('targetFound', (event) => {
-            console.log('xrimagefound evento catturato');
-
-            // Nascondi l'immagine di avvio per feedback visivo
-            const startImage = document.getElementById('startImage');
-            if (startImage) {
-              console.log('startImage trovata, nascondendo...');
-              startImage.setAttribute('visible', 'false');
-            }
-
-            // Assicuriamoci anche che l'oggetto sia visibile
-            el.setAttribute('visible', 'true');
-
-            // Ottieni la posizione iniziale del target rispetto alla telecamera
-            const { position, scale, rotation } = getModelPositionRelativeToCamera(el);
-
-            // Inizializza le proprietà se non sono già definite
-            this.data.initialPosition.copy(position);
-            this.data.initialScale.copy(scale);
-            this.data.initialRotation.copy(rotation);
-
-            console.log('Posizione iniziale rispetto alla telecamera:', this.data.initialPosition);
-            console.log('Scala iniziale:', this.data.initialScale);
-
-            // Rimuovi il componente xrextras-named-image-target per scollegare l'oggetto dal target
-            el.removeAttribute('mindar-image-target');
-
-            // Imposta la posizione e la scala del modello alla posizione iniziale nel mondo
-            el.object3D.position.copy(this.data.initialPosition).add(camera.el.object3D.position);
-            el.object3D.scale.copy(this.data.initialScale);
-            el.object3D.rotation.copy(this.data.initialRotation);
-
-            console.log('Posizione del modello aggiornata:', el.object3D.position);
-            console.log('Scala del modello aggiornata:', el.object3D.scale);
-
-            // Disabilita la visibilità basata sull'eventuale perdita del target
-            el.removeEventListener('targetLost', this.onImageLost);
-          });
-
-          // Funzione per gestire la perdita del target
-          this.onImageLost = (event) => {
-            console.log('xrimagelost evento catturato');
-
-            // Verifica se le proprietà sono definite
-            if (this.data.initialPosition && this.data.initialScale && this.data.initialRotation) {
-              // Mantieni la visibilità, la posizione e la scala dell'oggetto
-              el.object3D.position.copy(this.data.initialPosition).add(camera.el.object3D.position);
-              el.object3D.scale.copy(this.data.initialScale);
-              el.object3D.rotation.copy(this.data.initialRotation);
-              el.object3D.visible = true;
-
-              console.log('Posizione del modello fissata e visibilità mantenuta:', el.object3D.position);
-              console.log('Scala del modello fissata:', el.object3D.scale);
-            } else {
-              console.error('Le proprietà iniziali non sono definite.');
-            }
-          };
-
-          // Ascolta l'evento xrimagelost
-          sceneEl.addEventListener('targetLost', this.onImageLost);
-
-          // Imposta la visibilità e la scala dell'oggetto su visibile all'inizializzazione
-          el.object3D.visible = true;
-          this.data.initialScale.copy(el.object3D.scale);
-          this.data.initialRotation.copy(el.object3D.rotation);
-        }
-      });
+    // Evento targetLost
+    el.sceneEl.addEventListener('targetLost', (event) => {
+      console.log('Target lost');
+      // Non nascondere il modello, ma mantenerlo visibile
+      el.object3D.visible = true;
+    });
+  },
+});
 </script>
+
 
   <!-- BOTTONI -->
 <script>
