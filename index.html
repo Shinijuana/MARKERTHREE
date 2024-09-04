@@ -1,118 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Three.js AR.js with Improved Tracking</title>
-    
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
-    
-    <!-- AR.js for Three.js -->
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three/build/ar.js"></script>
-
-    <!-- Styles for loader -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAR with three.js and AR.js</title>
     <style>
-        .arjs-loader {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .arjs-loader div {
-            text-align: center;
-            font-size: 1.25em;
-            color: white;
-        }
+        body { margin: 0; }
+        canvas { display: block; }
     </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
-    <!-- Loading overlay -->
-    <div class="arjs-loader">
-        <div>Loading, please wait...</div>
-    </div>
-
-    <!-- AR.js and Three.js setup -->
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/three.js/AR.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
     <script>
-        // Initialize AR.js
-        var arToolkitSource = new THREEx.ArToolkitSource({
-            sourceType: 'webcam',
-        });
+        // Setup the scene
+        var scene, camera, renderer, markerRoot, model;
 
-        arToolkitSource.init(function onReady() {
-            // Hide the loading overlay once the source is ready
-            document.querySelector('.arjs-loader').style.display = 'none';
-        });
+        // Initialize the scene
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.Camera();
+            scene.add(camera);
 
-        var arToolkitContext = new THREEx.ArToolkitContext({
-            cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three/build/data/camera_para.dat',
-            detectionMode: 'mono',
-        });
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-        arToolkitContext.init(function onCompleted() {
-            // Copy projection matrix to camera
-            camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
-        });
+            // Add AR.js marker controls
+            var arToolkitSource = new THREEx.ArToolkitSource({
+                sourceType: 'webcam'
+            });
+            arToolkitSource.init(function onReady() {
+                onResize();
+            });
 
-        // Create the scene
-        var scene = new THREE.Scene();
+            window.addEventListener('resize', function () {
+                onResize();
+            });
 
-        // Create the camera
-        var camera = new THREE.Camera();
-        scene.add(camera);
-
-        // Create the renderer
-        var renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Add a light source
-        var light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(0, 1, 1).normalize();
-        scene.add(light);
-
-        // Load and add the 3D model
-        var loader = new THREE.GLTFLoader();
-        loader.load('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf', function (gltf) {
-            var model = gltf.scene;
-            model.scale.set(1, 1, 1);
-            scene.add(model);
-        });
-
-        // Create AR marker
-        var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-            type: 'nft',
-            url: 'https://raw.githubusercontent.com/Shinijuana/MARKERTHREE/main/images/nft/dos.fset', // URL to the base name of your image descriptor files
-        });
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if (arToolkitSource.ready) {
-                arToolkitContext.update(arToolkitSource.domElement);
-                renderer.render(scene, camera);
+            function onResize() {
+                arToolkitSource.onResizeElement();
+                arToolkitSource.copyElementSizeTo(renderer.domElement);
+                if (arToolkitContext.arController !== null) {
+                    arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
+                }
             }
+
+            var arToolkitContext = new THREEx.ArToolkitContext({
+                cameraParametersUrl: 'https://raw.githubusercontent.com/AR-js-org/AR.js/master/aframe/examples/marker-training-camera-param.preset.json',
+                detectionMode: 'mono'
+            });
+            arToolkitContext.init(function onCompleted() {
+                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+            });
+
+            // Add marker controls
+            markerRoot = new THREE.Group();
+            scene.add(markerRoot);
+
+            var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+                type: 'pattern',
+                patternUrl: 'https://raw.githack.com/Shinijuana/MARKERTHREE/main/images/nft/dos.patt'
+            });
+
+            // Load 3D model
+            var loader = new THREE.GLTFLoader();
+            loader.load('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf', function (gltf) {
+                model = gltf.scene;
+                model.scale.set(0.5, 0.5, 0.5);
+                markerRoot.add(model);
+            });
+
+            // Render loop
+            function animate() {
+                requestAnimationFrame(animate);
+                if (arToolkitSource.ready !== false) {
+                    arToolkitContext.update(arToolkitSource.domElement);
+                    renderer.render(scene, camera);
+                }
+            }
+
+            animate();
         }
 
-        animate();
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            arToolkitSource.onResizeElement();
-            arToolkitSource.copyElementSizeTo(renderer.domElement);
-            if (arToolkitContext.arController !== null) {
-                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
-            }
-        });
+        // Start the application
+        init();
     </script>
 </body>
 </html>
