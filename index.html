@@ -5,13 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Three.js AR.js with Improved Tracking</title>
     
-    <!-- AR.js -->
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/ar.js"></script>
-
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+    
+    <!-- AR.js for Three.js -->
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three/build/ar.js"></script>
 
     <!-- Styles for loader -->
     <style>
@@ -54,7 +53,7 @@
         });
 
         var arToolkitContext = new THREEx.ArToolkitContext({
-            cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/data/camera_para.dat',
+            cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three/build/data/camera_para.dat',
             detectionMode: 'mono',
         });
 
@@ -91,7 +90,7 @@
         // Create AR marker
         var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
             type: 'nft',
-            url: 'https://raw.githubusercontent.com/Shinijuana/MARKERTHREE/main/images/nft/dos.fset', // Ensure this points to the correct file
+            url: 'https://raw.githubusercontent.com/Shinijuana/MARKERTHREE/main/images/nft/dos.fset', // URL to the base name of your image descriptor files
         });
 
         // Animation loop
