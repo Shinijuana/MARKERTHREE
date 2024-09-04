@@ -162,7 +162,7 @@ AFRAME.registerComponent('keepvisibleonlost', {
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
-     
+     });
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
