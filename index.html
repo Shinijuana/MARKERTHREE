@@ -81,7 +81,7 @@
 
         // Load and add the 3D model
         var loader = new THREE.GLTFLoader();
-        loader.load('https://raw.githack.com/Shinijuana/ARDOSMARkER/main/assets/busto%20emilio.gltf', function (gltf) {
+        loader.load('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf', function (gltf) {
             var model = gltf.scene;
             model.scale.set(1, 1, 1);
             scene.add(model);
@@ -90,7 +90,7 @@
         // Create AR marker
         var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
             type: 'nft',
-            url: 'https://raw.githubusercontent.com/Shinijuana/ARDOSMARkER/main/images/nft/dos',
+            url: 'https://raw.githack.com/Shinijuana/MARKERTHREE/main/images/nft/dos',
         });
 
         // Animation loop
