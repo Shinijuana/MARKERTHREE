@@ -388,15 +388,27 @@ AFRAME.registerComponent('next-button', {
 AFRAME.registerComponent('keepvisibleonlost', {
   init() {
     const el = this.el;
-    const startImage = document.getElementById('startImage');
-    const viewmodel = document.getElementById('model');
-
-    // Inizialmente il modello è visibile
-    el.object3D.visible = true;
+    const sceneEl = el.sceneEl;
+    let originalParent = null;
+    let originalPosition = null;
+    let originalRotation = null;
+    let originalScale = null;
 
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', (event) => {
       console.log('Target found');
+
+      // Rimuovi l'oggetto dalla scena e rimettilo nell'ancora
+      if (originalParent) {
+        originalParent.appendChild(el);
+        el.setAttribute('position', originalPosition);
+        el.setAttribute('rotation', originalRotation);
+        el.setAttribute('scale', originalScale);
+      }
+
+      // Nascondi l'immagine di start e mostra il modello
+      const startImage = document.getElementById('startImage');
+      const viewmodel = document.getElementById('model');
       if (startImage) startImage.setAttribute('visible', 'false');
       if (viewmodel) viewmodel.setAttribute('visible', 'true');
       el.object3D.visible = true;
@@ -405,11 +417,25 @@ AFRAME.registerComponent('keepvisibleonlost', {
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', (event) => {
       console.log('Target lost');
-      // Non nascondere il modello, ma mantenerlo visibile
+
+      // Salva il genitore originale e la posa dell'oggetto
+      originalParent = el.parentNode;
+      originalPosition = el.getAttribute('position');
+      originalRotation = el.getAttribute('rotation');
+      originalScale = el.getAttribute('scale');
+
+      // Rimuovi l'oggetto dall'ancora e aggiungilo alla scena direttamente
+      sceneEl.appendChild(el);
+
+      // Mantieni la stessa posa dell'oggetto
+      el.setAttribute('position', originalPosition);
+      el.setAttribute('rotation', originalRotation);
+      el.setAttribute('scale', originalScale);
       el.object3D.visible = true;
     });
-  },
+  }
 });
+
 </script>
 
    <!-- OPENCV -->
