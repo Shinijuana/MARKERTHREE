@@ -152,20 +152,21 @@
 </a-scene>
 
   <!-- KEEPVISIBLE -->
-    <script>
+<script>
 AFRAME.registerComponent('keepvisibleonlost', {
   init() {
-    const el = this.el;
-    const scene = el.sceneEl;
-    const anchor = el.parentNode;
-    const startImage = document.getElementById('startImage');
-    let clone = null;
+    const el = this.el; // The element with the 3D model
+    const scene = el.sceneEl; // The scene
+    const anchor = el.parentNode; // The anchor where the 3D model is attached
+    const startImage = document.getElementById('startImage'); // Assuming there's a start image element
+    let clone = null; // Placeholder for the clone
 
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
-      // Se esiste un clone, rimuovilo
+
+      // Se esiste un clone, rimuovilo dalla scena
       if (clone) {
         scene.object3D.remove(clone);
         clone = null;
@@ -184,7 +185,7 @@ AFRAME.registerComponent('keepvisibleonlost', {
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
 
-      // Crea un clone dell'elemento con la stessa posizione, rotazione e scala
+      // Crea un clone dell'elemento con la stessa posizione, rotazione e scala nel mondo
       clone = el.object3D.clone();
       clone.position.copy(el.object3D.getWorldPosition(new THREE.Vector3()));
       clone.rotation.copy(el.object3D.getWorldRotation(new THREE.Euler()));
@@ -199,7 +200,6 @@ AFRAME.registerComponent('keepvisibleonlost', {
     });
   },
 });
-
 </script>
 
    <!-- BOTTONI -->
