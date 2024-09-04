@@ -1,91 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR with three.js and AR.js</title>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
-</head>
-<body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
-    <script>
-        // Setup the scene
-        var scene, camera, renderer, markerRoot, model;
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: /images/targets.mind; showStats: true; filterMinCF:0.1; filterBeta: 10; warmupTolerance: 1; missTolerance: 1"
+             color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" 
+             vr-mode-ui="enabled: false" 
+             device-orientation-permission-ui="enabled: false">
+      <a-assets>
+        <a-asset-item id="avatar" src="https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf"></a-asset-item>
+      </a-assets>
 
-        // Initialize the scene
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.Camera();
-            scene.add(camera);
 
-            renderer = new THREE.WebGLRenderer({ alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-            // Add AR.js marker controls
-            var arToolkitSource = new THREEx.ArToolkitSource({
-                sourceType: 'webcam'
-            });
-            arToolkitSource.init(function onReady() {
-                onResize();
-            });
 
-            window.addEventListener('resize', function () {
-                onResize();
-            });
-
-            function onResize() {
-                arToolkitSource.onResizeElement();
-                arToolkitSource.copyElementSizeTo(renderer.domElement);
-                if (arToolkitContext.arController !== null) {
-                    arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
-                }
-            }
-
-            var arToolkitContext = new THREEx.ArToolkitContext({
-                cameraParametersUrl: 'https://raw.githubusercontent.com/AR-js-org/AR.js/master/aframe/examples/marker-training-camera-param.preset.json',
-                detectionMode: 'mono'
-            });
-            arToolkitContext.init(function onCompleted() {
-                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
-            });
-
-            // Add marker controls
-            markerRoot = new THREE.Group();
-            scene.add(markerRoot);
-
-            var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-                type: 'pattern',
-                patternUrl: 'https://raw.githack.com/Shinijuana/MARKERTHREE/main/images/dos.patt'
-            });
-
-            // Load 3D model
-            var loader = new THREE.GLTFLoader();
-            loader.load('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.glb', function (gltf) {
-                model = gltf.scene;
-                model.scale.set(0.5, 0.5, 0.5);
-                markerRoot.add(model);
-            });
-
-            // Render loop
-            function animate() {
-                requestAnimationFrame(animate);
-                if (arToolkitSource.ready !== false) {
-                    arToolkitContext.update(arToolkitSource.domElement);
-                    renderer.render(scene, camera);
-                }
-            }
-
-            animate();
-        }
-
-        // Start the application
-        init();
-    </script>
-</body>
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-gltf-model rotation="0 0 0 " 
+                      position="0 0 0" 
+                      scale="1 1 1" 
+                      src="#avatar">
+      </a-entity>
+    </a-scene>
+  </body>
 </html>
