@@ -82,7 +82,7 @@
  
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0" position="0 0 0" rotation="0 0 0" scale="1 1 1" fix-on-image-found>
       <a-entity
         id="model"
         rotation="90 0 0" 
@@ -153,55 +153,67 @@
 
   <!-- KEEPVISIBLE -->
 <script>
-AFRAME.registerComponent('keepvisibleonlost', {
+AFRAME.registerComponent('fix-on-image-found', {
   schema: {
-    targetIndex: { type: 'number', default: 0 }
+    initialPosition: {type: 'vec3', default: {x: 0, y: 0, z: 0}},
+    initialScale: {type: 'vec3', default: {x: 1, y: 1, z: 1}},
   },
-  
+
   init() {
-    const el = this.el; // L'elemento con il modello 3D
-    const sceneEl = el.sceneEl;
-    const startImage = document.getElementById('startImage');
-    let lastPosition = new AFRAME.THREE.Vector3();
-    let lastRotation = new AFRAME.THREE.Euler();
-    let lastScale = new AFRAME.THREE.Vector3();
-    let modelEntity = null;
+    const {el} = this
 
-    // Evento targetFound
-    sceneEl.addEventListener('targetFound', () => {
-      console.log('Target found');
-      startImage.setAttribute('visible','false');
-      if (modelEntity) {
-        // Ritorna il modello alla gerarchia AR e aggiorna la posizione
-        modelEntity.setAttribute('position', lastPosition);
-        modelEntity.setAttribute('rotation', lastRotation);
-        modelEntity.setAttribute('scale', lastScale);
-        modelEntity.object3D.visible = true;
-        el.appendChild(modelEntity);
-      }
-    });
+    // Ascolta l'evento xrimagefound
+    el.sceneEl.addEventListener('targetFound'', (event) => {
+      console.log('xrimagefound evento catturato')
 
-    // Evento targetLost
-    sceneEl.addEventListener('targetLost', () => {
-      console.log('Target lost');
+      // Nascondi l'immagine di avvio per feedback visivo
 
-      // Se l'oggetto è ancora presente nella scena, salvalo e rimuovilo
-      modelEntity = el.children[0]; // Supponiamo che il modello sia il primo figlio dell'elemento AR
+      const startImage = document.getElementById('startImage')
 
-      if (modelEntity) {
-        // Salva la posizione, rotazione e scala del modello
-        lastPosition.copy(modelEntity.object3D.position);
-        lastRotation.copy(modelEntity.object3D.rotation);
-        lastScale.copy(modelEntity.object3D.scale);
+      console.log('startImage trovata, nascondendo...')
+      startImage.setAttribute('visible', 'false')
 
-        // Rimuovi il modello dalla gerarchia AR e rendilo indipendente
-        el.removeChild(modelEntity);
-        modelEntity.object3D.visible = true;
-        sceneEl.appendChild(modelEntity); // Aggiungi il modello alla scena
-      }
-    });
+      // Assicuriamoci anche che l'oggetto sia visibile
+      el.setAttribute('visible', 'true')
+
+      // Ottieni la posizione iniziale del target
+      this.data.initialPosition = el.object3D.position.clone()
+      this.data.initialScale = el.object3D.scale.clone()
+      console.log('Posizione iniziale:', this.data.initialPosition)
+      console.log('Scala iniziale:', this.data.initialScale)
+
+      // Rimuovi il componente xrextras-named-image-target per scollegare l'oggetto dal target
+      el.removeAttribute('mindar-image-target')
+
+      // Imposta la posizione e la scala del modello alla posizione iniziale nel mondo
+      el.object3D.position.copy(this.data.initialPosition)
+      el.object3D.scale.copy(this.data.initialScale)
+      console.log('Posizione del modello aggiornata:', el.object3D.position)
+      console.log('Scala del modello aggiornata:', el.object3D.scale)
+      // Disabilita la visibilità basata sull'eventuale perdita del target
+      el.removeEventListener('targetLost', this.onImageLost)
+    })
+
+    // Funzione per gestire la perdita del target
+    this.onImageLost = (event) => {
+      console.log('xrimagelost evento catturato')
+
+      // Mantieni la visibilità, la posizione e la scala dell'oggetto
+      el.object3D.position.copy(this.data.initialPosition)
+      el.object3D.scale.copy(this.data.initialScale)
+      el.object3D.visible = true
+      console.log('Posizione del modello fissata e visibilità mantenuta:', el.object3D.position)
+      console.log('Scala del modello fissata:', el.object3D.scale)
+    }
+
+    // Ascolta l'evento xrimagelost
+    el.sceneEl.addEventListener('targetLost', this.onImageLost)
+
+    // Imposta la visibilità e la scala dell'oggetto su visibile all'inizializzazione
+    el.object3D.visible = true
+    this.data.initialScale = el.object3D.scale.clone()
   },
-});
+})
 </script>
 
   <!-- BOTTONI -->
