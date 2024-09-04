@@ -21,7 +21,7 @@
     </a-assets>
 
     <!-- Configurazione della telecamera -->
-    <a-camera position="0 0 0" look-controls="enabled: false">
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
       <a-image
       id="startImage"
       src="assets/markerdos.jpg"
@@ -35,38 +35,45 @@
 
     <!-- Entità per il target AR e il modello 3D -->
     <a-entity id="example-target" mindar-image-target="targetIndex: 0" example-component>
-      <a-gltf-model 
+      <a-entity
         id="avatarModelEntity"
         rotation="90 0 0" 
         position="0 0 0" 
         scale="2 2 2" 
-        src="#avatarModel">
-      </a-gltf-model>
+        gltf-model="#avatarModel"
+        class="clickable"
+        animation__move="property: position; from: 0 0 0.5; to: 0 0 .9; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      </a-entity>
     </a-entity>
 
 </a-scene>
 <script>
     // Definizione del componente personalizzato
-    AFRAME.registerComponent('example-component', {
+       AFRAME.registerComponent('example-component', {
       init: function () {
         const el = this.el;
         const avatarModelEntity = document.querySelector('#avatarModelEntity');
         const startImage = document.querySelector('#startImage');
 
-        el.sceneEl.addEventListener('targetLost', event => {
-          console.log('Target lost');
-          el.object3D.visible = true;
-        });
-        
         // Evento targetFound
         el.sceneEl.addEventListener('targetFound', event => {
           console.log('Target found');
           startImage.setAttribute('visible', false);
-          el.object3D.visible = true;
+          avatarModelEntity.setAttribute('visible', true); // Rende il modello visibile quando il target viene trovato
         });
-        el.object3D.visible = true;
-       }
+
+        // Evento targetLost
+        el.sceneEl.addEventListener('targetLost', event => {
+          console.log('Target lost');
+          // Rende il modello visibile quando il target viene perso
+          avatarModelEntity.setAttribute('visible', true); 
+        });
+
+        // Imposta il modello come visibile di default
+        avatarModelEntity.setAttribute('visible', true);
+      }
     });
+  
   </script>
 </body>
 </html>
