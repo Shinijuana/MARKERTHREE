@@ -73,17 +73,18 @@
     </style>
   </head>
   <body>
-	  <div id="example-scanning-overlay" class>
-		  <div class="inner">
+	<div id="example-scanning-overlay" class="hidden">
+		<div class="inner">
 			<img src="assets/markerdos.jpg">
 			<div class="scanline"></div>
-		 </div>
-	  </div>
+		</div>
+	</div>
 	  
     <a-scene mindar-image="uiScanning: #example-scanning-overlay; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.001; filterBeta: 100; warmupTolerance: 2; missTolerance: 1;" 
 	    color-space="sRGB" 
 	    renderer="colorManagement: true, physicallyCorrectLights" 
 	    vr-mode-ui="enabled: false" 
+	    embedded
 	    device-orientation-permission-ui="enabled: false">
 	    
       <a-assets>
