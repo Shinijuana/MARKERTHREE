@@ -163,7 +163,7 @@ AFRAME.registerComponent('fix-on-image-found', {
     const {el} = this
 
     // Ascolta l'evento xrimagefound
-    el.sceneEl.addEventListener('targetFound'', (event) => {
+    el.sceneEl.addEventListener('targetFound', (event) => {
       console.log('xrimagefound evento catturato')
 
       // Nascondi l'immagine di avvio per feedback visivo
@@ -192,7 +192,7 @@ AFRAME.registerComponent('fix-on-image-found', {
       console.log('Scala del modello aggiornata:', el.object3D.scale)
       // Disabilita la visibilità basata sull'eventuale perdita del target
       el.removeEventListener('targetLost', this.onImageLost)
-    })
+    });
 
     // Funzione per gestire la perdita del target
     this.onImageLost = (event) => {
