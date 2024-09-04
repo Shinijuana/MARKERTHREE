@@ -154,26 +154,57 @@
   <!-- KEEPVISIBLE -->
 <script>
 AFRAME.registerComponent('keepvisibleonlost', {
+  schema: {
+    targetIndex: { type: 'number', default: 0 }
+  },
+  
   init() {
     const el = this.el; // L'elemento con il modello 3D
-    const startImage = document.getElementById('startImage'); // L'immagine iniziale
+    const sceneEl = el.sceneEl;
+    const startImage = document.getElementById('startImage');
+    let lastPosition = new AFRAME.THREE.Vector3();
+    let lastRotation = new AFRAME.THREE.Euler();
+    let lastScale = new AFRAME.THREE.Vector3();
+    let modelEntity = null;
 
     // Evento targetFound
-    el.sceneEl.addEventListener('targetFound', () => {
+    sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
-      startImage.setAttribute('visible', 'false');
-     });
+      startImage.setAttribute('visible','false');
+      if (modelEntity) {
+        // Ritorna il modello alla gerarchia AR e aggiorna la posizione
+        modelEntity.setAttribute('position', lastPosition);
+        modelEntity.setAttribute('rotation', lastRotation);
+        modelEntity.setAttribute('scale', lastScale);
+        modelEntity.object3D.visible = true;
+        el.appendChild(modelEntity);
+      }
+    });
+
     // Evento targetLost
-    el.sceneEl.addEventListener('targetLost', () => {
+    sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
+
+      // Se l'oggetto è ancora presente nella scena, salvalo e rimuovilo
+      modelEntity = el.children[0]; // Supponiamo che il modello sia il primo figlio dell'elemento AR
+
+      if (modelEntity) {
+        // Salva la posizione, rotazione e scala del modello
+        lastPosition.copy(modelEntity.object3D.position);
+        lastRotation.copy(modelEntity.object3D.rotation);
+        lastScale.copy(modelEntity.object3D.scale);
+
+        // Rimuovi il modello dalla gerarchia AR e rendilo indipendente
+        el.removeChild(modelEntity);
+        modelEntity.object3D.visible = true;
+        sceneEl.appendChild(modelEntity); // Aggiungi il modello alla scena
+      }
     });
   },
 });
-
-
 </script>
 
-   <!-- BOTTONI -->
+  <!-- BOTTONI -->
 <script>
 AFRAME.registerComponent('next-button', {
   init() {
