@@ -7,6 +7,7 @@
     
     <!-- AR.js -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/ar.js"></script>
 
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -90,7 +91,7 @@
         // Create AR marker
         var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
             type: 'nft',
-            url: 'https://raw.githack.com/Shinijuana/MARKERTHREE/main/images/nft/dos',
+            url: 'https://raw.githubusercontent.com/Shinijuana/MARKERTHREE/main/images/nft/dos.fset', // Ensure this points to the correct file
         });
 
         // Animation loop
