@@ -1,8 +1,14 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <!-- Librerie OpenCV -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script async src="https://docs.opencv.org/master/opencv.js"></script>
 </head>
 <body>
   <!-- Overlay di scansione per il tracciamento dell'image target -->
@@ -35,7 +41,7 @@
     </a-camera>
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0" example-component>
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0" keepvisibleonlost>
       <a-entity
         id="avatarModelEntity"
         rotation="90 0 0" 
@@ -48,33 +54,34 @@
     </a-entity>
 
 </a-scene>
-<script>
-    // Definizione del componente personalizzato
-       AFRAME.registerComponent('example-component', {
-      init: function () {
-        const el = this.el;
-        const avatarModelEntity = document.querySelector('#avatarModelEntity');
-        const startImage = document.querySelector('#startImage');
 
-        // Evento targetFound
-        el.sceneEl.addEventListener('targetFound', event => {
-          console.log('Target found');
-          startImage.setAttribute('visible', false);
-          avatarModelEntity.setAttribute('visible', true); // Rende il modello visibile quando il target viene trovato
-        });
+    <script>
+AFRAME.registerComponent('keepvisibleonlost', {
+  init() {
+    const el = this.el;
+    const startImage = document.getElementById('startImage');
+    const viewmodel = document.getElementById('avatarModelEntity');
 
-        // Evento targetLost
-        el.sceneEl.addEventListener('targetLost', event => {
-          console.log('Target lost');
-          // Rende il modello visibile quando il target viene perso
-          avatarModelEntity.setAttribute('visible', true); 
-        });
+    // Inizialmente il modello è visibile
+    el.object3D.visible = true;
 
-        // Imposta il modello come visibile di default
-        avatarModelEntity.setAttribute('visible', true);
-      }
+    // Evento targetFound
+    el.sceneEl.addEventListener('targetFound', (event) => {
+      console.log('Target found');
+      if (startImage) startImage.setAttribute('visible', 'false');
+      if (viewmodel) viewmodel.setAttribute('visible', 'true');
+      el.object3D.visible = true;
     });
-  </script>
+
+    // Evento targetLost
+    el.sceneEl.addEventListener('targetLost', (event) => {
+      console.log('Target lost');
+      // Non nascondere il modello, ma mantenerlo visibile
+      el.object3D.visible = true;
+    });
+  },
+});
+</script>
   <script>
     // Componente A-Frame
 AFRAME.registerComponent('tensorflow-contour-processor', {
