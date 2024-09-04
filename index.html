@@ -9,7 +9,7 @@
   <!-- Overlay di scansione per il tracciamento dell'image target -->
 
   <!-- Configurazione di A-Frame con MindAR -->
-  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.0001; filterBeta: 100; warmupTolerance: 1; missTolerance: 1;" 
+  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.01; filterBeta: 100; warmupTolerance: 1; missTolerance: 1;" 
            tensorflow-contour-processor
            typewriting
            next-button
@@ -80,7 +80,17 @@
     
     <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
   <a-light type="ambient" intensity="0.7"></a-light>
-
+ 
+    <a-entity
+        id="modelclone"
+        rotation="90 0 0" 
+        position="0 0 0" 
+        scale="2 2 2" 
+        gltf-model="#busto"
+        class="clickable"
+        animation__move="property: position; from: 0 0 0.5; to: 0 0 .9; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"
+        visible="false">
+      </a-entity>
     <!-- Entità per il target AR e il modello 3D -->
     <a-entity id="example-target" mindar-image-target="targetIndex: 0" keepvisibleonlost>
       <a-entity
@@ -158,16 +168,18 @@ AFRAME.registerComponent('keepvisibleonlost', {
     const el = this.el; // L'elemento con il modello 3D
     const scene = el.sceneEl; // La scena
     const startImage = document.getElementById('startImage'); // L'immagine iniziale
-
+    const clon = document.getElementByID('modelclone')
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
+      clon.setAttribute('visible','false');
     });
 
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
+      clon.setAttribute('visible','true');
     });
   },
 });
