@@ -1,7 +1,6 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
@@ -24,15 +23,15 @@
     <a-assets>
       <a-asset-item id="busto" src="https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf"></a-asset-item>
       <a-asset-item id="web" src="assets/web.glb"></a-asset-item>
-    <a-asset-item id="phone" src="assets/phone.glb"></a-asset-item>
-    <a-asset-item id="mail" src="assets/mail.glb"></a-asset-item>
-    <a-asset-item id="vcf" src="assets/vcf.glb"></a-asset-item>
-    <img id="balloonTexture" src="assets/balloon.png" />
+      <a-asset-item id="phone" src="assets/phone.glb"></a-asset-item>
+      <a-asset-item id="mail" src="assets/mail.glb"></a-asset-item>
+      <a-asset-item id="vcf" src="assets/vcf.glb"></a-asset-item>
+      <img id="balloonTexture" src="assets/balloon.png" />
     </a-assets>
 
     <!-- Configurazione della telecamera -->
     <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
-      <a-image
+    <a-image
       id="startImage"
       src="assets/markerdos.jpg"
       position="0 0 -15"
@@ -41,7 +40,7 @@
       visible="true"
       animation__pulse="property: scale; from: 5 5 5; to: 5.5 5.5 5.5; dir: alternate; loop: true; dur: 1000">
     </a-image>
-      <a-image
+    <a-image
       id="finalp"
       src="assets/final.png"
       position="0 .2 -5"
@@ -79,7 +78,7 @@
     </a-camera>
     
     <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
-  <a-light type="ambient" intensity="0.7"></a-light>
+    <a-light type="ambient" intensity="0.7"></a-light>
  
     <a-entity
         id="modelclone"
@@ -92,7 +91,7 @@
         visible="false">
       </a-entity>
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0" keepvisibleonlost>
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
       <a-entity
         id="model"
         rotation="90 0 0" 
@@ -166,28 +165,30 @@
 AFRAME.registerComponent('keepvisibleonlost', {
   init() {
     const el = this.el; // L'elemento con il modello 3D
-    const scene = el.sceneEl; // La scena
     const startImage = document.getElementById('startImage'); // L'immagine iniziale
     const clon = document.getElementById('modelclone');
+
+    let savedPosition = new THREE.Vector3();
+    let savedRotation = new THREE.Euler();
 
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
       clon.setAttribute('visible', 'false');
+
+      // Salva la posizione e la rotazione corrente dell'oggetto
+      savedPosition.copy(el.object3D.position);
+      savedRotation.copy(el.object3D.rotation);
     });
 
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
 
-      // Prende la posizione corrente dell'elemento 3D
-      const elPosition = el.object3D.position.clone();
-      const elRotation = el.object3D.rotation.clone();
-
-      // Imposta la posizione e la rotazione del clone con i valori dell'elemento 3D
-      clon.object3D.position.copy(elPosition);
-      clon.object3D.rotation.copy(elRotation);
+      // Imposta la posizione e la rotazione del clone con i valori salvati
+      clon.object3D.position.copy(savedPosition);
+      clon.object3D.rotation.copy(savedRotation);
 
       // Rendi visibile il clone
       clon.setAttribute('visible', 'true');
