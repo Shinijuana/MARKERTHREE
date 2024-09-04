@@ -50,6 +50,10 @@
     const exampleTarget = document.querySelector('#example-target');
     const avatarModelEntity = document.querySelector('#avatarModelEntity');
     const startimage = document.querySelector('#startImage')
+  
+    // Variabile per memorizzare l'ultima posizione del modello
+    let lastPosition = new THREE.Vector3();
+  
     // Evento targetFound
     exampleTarget.addEventListener("targetFound", event => {
       console.log("Target found");
@@ -61,6 +65,19 @@
     // Evento targetLost
     exampleTarget.addEventListener("targetLost", event => {
       console.log("Target lost");
+      
+      // Quando il target viene perso, memorizza la posizione attuale del modello
+      lastPosition.copy(avatarModelEntity.object3D.position);
+      
+      // Nascondi il modello ma mantieni la posizione
+      avatarModelEntity.setAttribute('visible', true);
+    });
+  
+  // Aggiorna la posizione del modello se il target viene trovato di nuovo
+    exampleTarget.addEventListener("targetFound", event => {
+      console.log("Target found again");
+      avatarModelEntity.setAttribute('position', lastPosition);
+      avatarModelEntity.setAttribute('visible', true);
     });
 </script>
 </body>
