@@ -34,7 +34,7 @@
     </a-camera>
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0">
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0" example-component>
       <a-gltf-model 
         id="avatarModelEntity"
         rotation="90 0 0" 
@@ -46,39 +46,27 @@
 
 </a-scene>
 <script>
-    // Seleziona l'elemento del target
-    const exampleTarget = document.querySelector('#example-target');
-    const avatarModelEntity = document.querySelector('#avatarModelEntity');
-    const startimage = document.querySelector('#startImage')
-  
-    // Variabile per memorizzare l'ultima posizione del modello
-    let lastPosition = new THREE.Vector3();
-  
-    // Evento targetFound
-    exampleTarget.addEventListener("targetFound", event => {
-      console.log("Target found");
-      // Quando il target viene trovato, ripristina la posizione del modello
-      avatarModelEntity.setAttribute('visible', true);
-      startimage.setAttribute('visible', false);
-    });
+    // Definizione del componente personalizzato
+    AFRAME.registerComponent('example-component', {
+      init: function () {
+        const el = this.el;
+        const avatarModelEntity = document.querySelector('#avatarModelEntity');
+        const startImage = document.querySelector('#startImage');
 
-    // Evento targetLost
-    exampleTarget.addEventListener("targetLost", event => {
-      console.log("Target lost");
-      
-      // Quando il target viene perso, memorizza la posizione attuale del modello
-      lastPosition.copy(avatarModelEntity.object3D.position);
-      
-      // Nascondi il modello ma mantieni la posizione
-      avatarModelEntity.setAttribute('visible', true);
+        el.sceneEl.addEventListener('targetLost', event => {
+          console.log('Target lost');
+          avatarModelEntity.setAttribute('visible', true); // Mantiene il modello visibile
+        });
+        
+        // Evento targetFound
+        el.sceneEl.addEventListener('targetFound', event => {
+          console.log('Target found');
+          startImage.setAttribute('visible', false);
+          avatarModelEntity.setAttribute('visible', true);
+        });
+        avatarModelEntity.setAttribute('visible', true);
+       }
     });
-  
-  // Aggiorna la posizione del modello se il target viene trovato di nuovo
-    exampleTarget.addEventListener("targetFound", event => {
-      console.log("Target found again");
-      avatarModelEntity.setAttribute('position', lastPosition);
-      avatarModelEntity.setAttribute('visible', true);
-    });
-</script>
+  </script>
 </body>
 </html>
