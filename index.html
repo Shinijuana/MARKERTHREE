@@ -80,16 +80,7 @@
     <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
     <a-light type="ambient" intensity="0.7"></a-light>
  
-    <a-entity
-        id="modelclone"
-        rotation="90 0 0" 
-        position="0 0 0" 
-        scale="2 2 2" 
-        gltf-model="#busto"
-        class="clickable"
-        animation__move="property: position; from: 0 0 0.5; to: 0 0 .9; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"
-        visible="false">
-      </a-entity>
+
     <!-- Entità per il target AR e il modello 3D -->
     <a-entity id="example-target" mindar-image-target="targetIndex: 0" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
       <a-entity
@@ -166,40 +157,15 @@ AFRAME.registerComponent('keepvisibleonlost', {
   init() {
     const el = this.el; // L'elemento con il modello 3D
     const startImage = document.getElementById('startImage'); // L'immagine iniziale
-    const clon = document.getElementById('modelclone');
-
-    let savedPosition = new THREE.Vector3();
-    let savedRotation = new THREE.Euler();
 
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
-      clon.setAttribute('visible', 'false');
-
-      // Salva la posizione e la rotazione corrente dell'oggetto
-      savedPosition.copy(el.object3D.position);
-      savedRotation.copy(el.object3D.rotation);
-
-      // Log delle posizioni e rotazioni salvate
-      console.log('Saved position:', savedPosition);
-      console.log('Saved rotation:', savedRotation);
-    });
-
+     
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
-
-      // Imposta la posizione e la rotazione del clone con i valori salvati
-      clon.object3D.position.copy(savedPosition);
-      clon.object3D.rotation.copy(savedRotation);
-
-      // Log della posizione e rotazione applicata al clone
-      console.log('Clone position set to:', clon.object3D.position);
-      console.log('Clone rotation set to:', clon.object3D.rotation);
-
-      // Rendi visibile il clone
-      clon.setAttribute('visible', 'true');
     });
   },
 });
