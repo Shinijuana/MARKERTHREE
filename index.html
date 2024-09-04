@@ -55,16 +55,16 @@
 
         el.sceneEl.addEventListener('targetLost', event => {
           console.log('Target lost');
-          avatarModelEntity.setAttribute('visible', true); // Mantiene il modello visibile
+          el.object3D.visible = true;
         });
         
         // Evento targetFound
         el.sceneEl.addEventListener('targetFound', event => {
           console.log('Target found');
           startImage.setAttribute('visible', false);
-          avatarModelEntity.setAttribute('visible', true);
+          el.object3D.visible = true;
         });
-        avatarModelEntity.setAttribute('visible', true);
+        el.object3D.visible = true;
        }
     });
   </script>
