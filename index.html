@@ -4,12 +4,13 @@
     <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://raw.githack.com/maxfyk/mind-ar-js/feature/stay-visible-on-target-lost/src/image-target/aframe.js"></script>
 </head>
 <body>
   <!-- Overlay di scansione per il tracciamento dell'image target -->
 
   <!-- Configurazione di A-Frame con MindAR -->
-  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.0001; filterBeta: 100; warmupTolerance: 1; missTolerance: 1;" 
+  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.0001; filterBeta: 100; warmupTolerance: 1; missTolerance: 1; stayVisible:true; stayVisibleScale:50;" 
            tensorflow-contour-processor
            typewriting
            next-button
@@ -157,49 +158,17 @@ AFRAME.registerComponent('keepvisibleonlost', {
   init() {
     const el = this.el; // L'elemento con il modello 3D
     const scene = el.sceneEl; // La scena
-    const anchor = el.parentNode; // L'ancora a cui è attaccato il modello 3D
     const startImage = document.getElementById('startImage'); // L'immagine iniziale
-    let clone = null; // Placeholder per il clone
 
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
-
-      // Rimuovi il clone dalla scena se esiste
-      if (clone) {
-        scene.object3D.remove(clone);
-        clone = null;
-      }
-
-      // Aggiungi l'elemento all'anchor se non è già presente
-      if (!anchor.object3D.children.includes(el.object3D)) {
-        anchor.object3D.add(el.object3D);
-      }
-
-      // Assicurati che l'elemento originale sia visibile
-      el.object3D.visible = true;
     });
 
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
-
-      // Crea un clone dell'elemento con la stessa posizione, rotazione e scala nel mondo
-      clone = el.object3D.clone();
-      clone.position.copy(el.object3D.getWorldPosition(new THREE.Vector3()));
-      clone.rotation.copy(el.object3D.getWorldRotation(new THREE.Euler()));
-      clone.scale.copy(el.object3D.scale);
-
-      // Rimuovi l'elemento dall'anchor e aggiungi il clone direttamente alla scena
-      anchor.object3D.remove(el.object3D);
-      scene.object3D.add(clone);
-
-      // Assicurati che il clone sia visibile
-      clone.visible = true;
-
-      // Logga i dettagli del clone per il debug
-      console.log('Clone details:', clone.position, clone.rotation, clone.scale);
     });
   },
 });
