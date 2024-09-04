@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>A-Frame AR.js with Improved Tracking</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- A-Frame and AR.js -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar-nft.js"></script> 
+   
+
+    <script async src="https://docs.opencv.org/master/opencv.js"></script>
+
+    <!-- Custom scripts -->
+    <script src="js/gesture-detector.js"></script>
+    <script src="js/gesture-handler.js"></script>
+
+    <!-- Styles for loader -->
+    <style>
+        .arjs-loader {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .arjs-loader div {
+            text-align: center;
+            font-size: 1.25em;
+            color: white;
+        }
+    </style>
+        
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <!-- Loading overlay -->
+    <div class="arjs-loader">
+        <div>Loading, please wait...</div>
+    </div>
+
+    <!-- A-Frame Scene -->
+    <a-scene
+        vr-mode-ui="enabled: false;"
+        renderer="logarithmicDepthBuffer: true;"
+        embedded
+        gesture-detector
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+    >
+        
+            <a-nft
+                type="nft"
+                url="https://raw.githubusercontent.com/Shinijuana/ARDOSMARkER/main/images/nft/dos"
+                smooth="true"
+                smoothCount="30"   
+                smoothTolerance="0.01" 
+                smoothThreshold="20"
+                raycaster="objects: .clickable"
+                emitevents="true"
+                cursor="fuse: false; rayOrigin: mouse;"
+                id="nftMarker"
+            >
+            <a-entity
+                id="sandcastle"
+                gltf-model="https://raw.githack.com/Shinijuana/ARDOSMARkER/main/assets/busto%20emilio.gltf"
+                scale="1 1 1"
+                position="0 0 0"
+                class="clickable" 
+            >
+            </a-entity>
+        </a-nft>
+       
+        <a-entity camera></a-entity>
+    </a-scene>
+
+</body>
+</html>
