@@ -156,42 +156,45 @@ AFRAME.registerComponent('keepvisibleonlost', {
   init() {
     const el = this.el;
     const scene = el.sceneEl;
-    const anchor = el.parentNode; // Assume che l'elemento sia figlio dell'anchor
+    const anchor = el.parentNode;
     const startImage = document.getElementById('startImage');
-
-    // Inizialmente il modello è visibile
-    el.object3D.visible = true;
-
-    // Variabile per memorizzare la posizione originale dell'oggetto
-    let originalPosition = null;
-    let originalRotation = null;
+    let clone = null;
 
     // Evento targetFound
-    el.sceneEl.addEventListener('targetFound', (event) => {
+    el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
-      if (startImage) startImage.setAttribute('visible', 'false');
-      // Rimuove l'oggetto dalla scena e lo riaggiunge all'anchor
-      if (scene.object3D.children.includes(el.object3D)) {
-        scene.object3D.remove(el.object3D);
-        anchor.object3D.add(el.object3D);
-        el.object3D.position.copy(originalPosition);
-        el.object3D.rotation.copy(originalRotation);
+      startImage.setAttribute('visible', 'false');
+      // Se esiste un clone, rimuovilo
+      if (clone) {
+        scene.object3D.remove(clone);
+        clone = null;
       }
+
+      // Aggiungi l'elemento all'anchor se non è già presente
+      if (!anchor.object3D.children.includes(el.object3D)) {
+        anchor.object3D.add(el.object3D);
+      }
+
+      // Assicurati che l'elemento originale sia visibile
       el.object3D.visible = true;
     });
 
     // Evento targetLost
-    el.sceneEl.addEventListener('targetLost', (event) => {
+    el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
-      // Salva la posizione e la rotazione corrente
-      originalPosition = el.object3D.position.clone();
-      originalRotation = el.object3D.rotation.clone();
-      // Rimuove l'oggetto dall'anchor e lo aggiunge alla scena
-      if (anchor.object3D.children.includes(el.object3D)) {
-        anchor.object3D.remove(el.object3D);
-        scene.object3D.add(el.object3D);
-      }
-      el.object3D.visible = true;
+
+      // Crea un clone dell'elemento con la stessa posizione, rotazione e scala
+      clone = el.object3D.clone();
+      clone.position.copy(el.object3D.getWorldPosition(new THREE.Vector3()));
+      clone.rotation.copy(el.object3D.getWorldRotation(new THREE.Euler()));
+      clone.scale.copy(el.object3D.scale);
+
+      // Rimuovi l'elemento dall'anchor e aggiungi il clone direttamente alla scena
+      anchor.object3D.remove(el.object3D);
+      scene.object3D.add(clone);
+
+      // Assicurati che il clone sia visibile
+      clone.visible = true;
     });
   },
 });
