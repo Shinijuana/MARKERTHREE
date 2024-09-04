@@ -6,81 +6,12 @@
   <title>AR Experience with MindAR and A-Frame</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <style>
-    /* Stili per l'overlay di scansione */
-    #example-scanning-overlay {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      background: transparent;
-      z-index: 2;
-    }
-    @media (min-aspect-ratio: 1/1) {
-      #example-scanning-overlay .inner {
-        width: 50vh;
-        height: 50vh;
-      }
-    }
-    @media (max-aspect-ratio: 1/1) {
-      #example-scanning-overlay .inner {
-        width: 80vw;
-        height: 80vw;
-      }
-    }
-    #example-scanning-overlay .inner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      background:
-        linear-gradient(to right, white 10px, transparent 10px) 0 0,
-        linear-gradient(to right, white 10px, transparent 10px) 0 100%,
-        linear-gradient(to left, white 10px, transparent 10px) 100% 0,
-        linear-gradient(to left, white 10px, transparent 10px) 100% 100%,
-        linear-gradient(to bottom, white 10px, transparent 10px) 0 0,
-        linear-gradient(to bottom, white 10px, transparent 10px) 100% 0,
-        linear-gradient(to top, white 10px, transparent 10px) 0 100%,
-        linear-gradient(to top, white 10px, transparent 10px) 100% 100%;
-      background-repeat: no-repeat;
-      background-size: 40px 40px;
-    }
-    #example-scanning-overlay.hidden {
-      display: none;
-    }
-    #example-scanning-overlay img {
-      opacity: 0.6;
-      width: 90%;
-      align-self: center;
-    }
-    #example-scanning-overlay .inner .scanline {
-      position: absolute;
-      width: 100%;
-      height: 10px;
-      background: white;
-      animation: move 2s linear infinite;
-    }
-    @keyframes move {
-      0%, 100% { top: 0% }
-      50% { top: calc(100% - 10px) }
-    }
-  </style>
 </head>
 <body>
   <!-- Overlay di scansione per il tracciamento dell'image target -->
-  <div id="example-scanning-overlay" class="hidden">
-    <div class="inner">
-      <img src="assets/markerdos.jpg" alt="Scanning overlay">
-      <div class="scanline"></div>
-    </div>
-  </div>
 
   <!-- Configurazione di A-Frame con MindAR -->
-  <a-scene mindar-image="uiScanning: #example-scanning-overlay; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.001; filterBeta: 100; warmupTolerance: 2; missTolerance: 1;" 
+  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.001; filterBeta: 100; warmupTolerance: 2; missTolerance: 1;" 
            color-space="sRGB" 
            renderer="colorManagement: true, physicallyCorrectLights" 
            vr-mode-ui="enabled: false" 
@@ -93,50 +24,46 @@
     </a-assets>
 
     <!-- Configurazione della telecamera -->
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false">
+      <a-image
+      id="startImage"
+      src="assets/markerdos.jpg"
+      position="0 0 -15"
+      scale="10 7 10"
+      opacity=".8"
+      visible="true"
+      animation__pulse="property: scale; from: 5 5 5; to: 5.5 5.5 5.5; dir: alternate; loop: true; dur: 1000">
+    </a-image>
+    </a-camera>
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0">
+    <a-entity mindar-image-target="targetIndex: 0">
       <a-gltf-model 
-        id="avatarModelEntity"
         rotation="90 0 0" 
         position="0 0 0" 
         scale="2 2 2" 
         src="#avatarModel">
       </a-gltf-model>
     </a-entity>
-  </a-scene>
 
-  <script>
+</a-scene>
+<script>
     // Seleziona l'elemento del target
     const exampleTarget = document.querySelector('#example-target');
     const avatarModelEntity = document.querySelector('#avatarModelEntity');
-    
-    // Variabile per memorizzare l'ultima posizione del modello
-    let lastPosition = new THREE.Vector3();
-
+    const startimage = document.querySelector('#startImage')
     // Evento targetFound
     exampleTarget.addEventListener("targetFound", event => {
       console.log("Target found");
       // Quando il target viene trovato, ripristina la posizione del modello
       avatarModelEntity.setAttribute('visible', true);
+      startimage.setAttribute('visible', false);
     });
 
     // Evento targetLost
     exampleTarget.addEventListener("targetLost", event => {
       console.log("Target lost");
-      // Quando il target viene perso, memorizza la posizione attuale del modello
-      lastPosition.copy(avatarModelEntity.object3D.position);
-      // Nascondi il modello ma mantieni la posizione
-      avatarModelEntity.setAttribute('visible', false);
     });
-
-    // Aggiorna la posizione del modello se il target viene trovato di nuovo
-    exampleTarget.addEventListener("targetFound", event => {
-      console.log("Target found again");
-      avatarModelEntity.setAttribute('position', lastPosition);
-      avatarModelEntity.setAttribute('visible', true);
-    });
-  </script>
+</script>
 </body>
 </html>
