@@ -168,21 +168,33 @@ AFRAME.registerComponent('keepvisibleonlost', {
     const el = this.el; // L'elemento con il modello 3D
     const scene = el.sceneEl; // La scena
     const startImage = document.getElementById('startImage'); // L'immagine iniziale
-    const clon = document.getElementByID('modelclone')
+    const clon = document.getElementById('modelclone');
+
     // Evento targetFound
     el.sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       startImage.setAttribute('visible', 'false');
-      clon.setAttribute('visible','false');
+      clon.setAttribute('visible', 'false');
     });
 
     // Evento targetLost
     el.sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
-      clon.setAttribute('visible','true');
+
+      // Prende la posizione corrente dell'elemento 3D
+      const elPosition = el.object3D.position.clone();
+      const elRotation = el.object3D.rotation.clone();
+
+      // Imposta la posizione e la rotazione del clone con i valori dell'elemento 3D
+      clon.object3D.position.copy(elPosition);
+      clon.object3D.rotation.copy(elRotation);
+
+      // Rendi visibile il clone
+      clon.setAttribute('visible', 'true');
     });
   },
 });
+
 </script>
 
    <!-- BOTTONI -->
