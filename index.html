@@ -150,6 +150,54 @@
     </a-entity>
 </a-scene>
 
+  <!-- KEEPVISIBLE -->
+    <script>
+AFRAME.registerComponent('keepvisibleonlost', {
+  init() {
+    const el = this.el;
+    const scene = el.sceneEl;
+    const anchor = el.parentNode; // Assume che l'elemento sia figlio dell'anchor
+    const startImage = document.getElementById('startImage');
+
+    // Inizialmente il modello è visibile
+    el.object3D.visible = true;
+
+    // Variabile per memorizzare la posizione originale dell'oggetto
+    let originalPosition = null;
+    let originalRotation = null;
+
+    // Evento targetFound
+    el.sceneEl.addEventListener('targetFound', (event) => {
+      console.log('Target found');
+      if (startImage) startImage.setAttribute('visible', 'false');
+      // Rimuove l'oggetto dalla scena e lo riaggiunge all'anchor
+      if (scene.object3D.children.includes(el.object3D)) {
+        scene.object3D.remove(el.object3D);
+        anchor.object3D.add(el.object3D);
+        el.object3D.position.copy(originalPosition);
+        el.object3D.rotation.copy(originalRotation);
+      }
+      el.object3D.visible = true;
+    });
+
+    // Evento targetLost
+    el.sceneEl.addEventListener('targetLost', (event) => {
+      console.log('Target lost');
+      // Salva la posizione e la rotazione corrente
+      originalPosition = el.object3D.position.clone();
+      originalRotation = el.object3D.rotation.clone();
+      // Rimuove l'oggetto dall'anchor e lo aggiunge alla scena
+      if (anchor.object3D.children.includes(el.object3D)) {
+        anchor.object3D.remove(el.object3D);
+        scene.object3D.add(el.object3D);
+      }
+      el.object3D.visible = true;
+    });
+  },
+});
+
+</script>
+
    <!-- BOTTONI -->
 <script>
 AFRAME.registerComponent('next-button', {
@@ -383,54 +431,7 @@ AFRAME.registerComponent('next-button', {
 })
 </script>
 
-  <!-- KEEPVISIBLE -->
-    <script>
-AFRAME.registerComponent('keepvisibleonlost', {
-  init() {
-    const el = this.el;
-    const scene = el.sceneEl;
-    const anchor = el.parentEl; // Presupponendo che l'elemento sia figlio dell'ancora
-    const startImage = document.getElementById('startImage');
-
-    let originalPosition = el.object3D.position.clone();
-    let originalRotation = el.object3D.rotation.clone();
-
-    // Inizialmente il modello è visibile
-    el.object3D.visible = true;
-
-    // Evento targetFound
-    scene.addEventListener('targetFound', (event) => {
-      console.log('Target found');
-      if (startImage) startImage.setAttribute('visible', 'false');
-
-      // Riattacca l'elemento all'ancora
-      if (el.parentEl !== anchor) {
-        anchor.appendChild(el);
-      }
-
-      // Ripristina la posizione e la rotazione originali
-      el.object3D.position.copy(originalPosition);
-      el.object3D.rotation.copy(originalRotation);
-
-      el.object3D.visible = true;
-    });
-
-    // Evento targetLost
-    scene.addEventListener('targetLost', (event) => {
-      console.log('Target lost');
-
-      // Mantieni l'oggetto visibile e spostalo dalla scena principale
-      if (el.parentEl === anchor) {
-        scene.appendChild(el);  // Sposta l'oggetto fuori dall'ancora
-      }
-
-      // Mantieni la posizione attuale
-      el.object3D.visible = true;
-    });
-  }
-});
-</script>
-
+  
 
    <!-- OPENCV -->
   <script>
