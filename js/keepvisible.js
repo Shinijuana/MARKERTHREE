@@ -51,6 +51,3 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       });
     }
   });
-
-  // Apply the keep-visible-on-lost component to the scene
-  document.querySelector('a-scene').setAttribute('keep-visible-on-lost', '');
