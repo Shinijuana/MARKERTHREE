@@ -160,7 +160,7 @@
 </a-scene>
 
     <!-- JavaScript to handle visibility after target is lost -->
-    <script>
+   <script>
       AFRAME.registerComponent('keep-visible-on-lost', {
         init: function () {
           const sceneEl = this.el.sceneEl;
@@ -178,12 +178,12 @@
 
           sceneEl.addEventListener('targetLost', () => {
             console.log('Target lost');
-            // When the target is lost, hide the tracked model and show the free model in its place
-            trackedModel.setAttribute('visible', 'false');
-
             // Get the current position and rotation of the tracked model
             const position = trackedModel.getAttribute('position');
             const rotation = trackedModel.getAttribute('rotation');
+
+            console.log('Position:', position); // Debugging the position
+            console.log('Rotation:', rotation); // Debugging the rotation
 
             // Set the free model's position and rotation to match the tracked model
             lostModel.setAttribute('position', position);
@@ -191,6 +191,7 @@
 
             // Show the free model
             lostModel.setAttribute('visible', 'true');
+            console.log('Lost model visible'); // Debugging visibility
           });
         }
       });
