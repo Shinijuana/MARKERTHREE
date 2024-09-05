@@ -11,6 +11,12 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       return globalPos;
     }
 
+    // Helper function to convert global rotation to Euler angles
+    function quaternionToEuler(quat) {
+      const euler = new THREE.Euler().setFromQuaternion(quat);
+      return euler;
+    }
+
     // Listen for MindAR targetFound and targetLost events
     sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
@@ -33,8 +39,9 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       // Get the global position and rotation of the tracked model
       const globalPosition = localToGlobal(trackedModel);
 
-      // Get rotation as Euler angles in radians
-      const globalRotation = new THREE.Euler().setFromQuaternion(trackedModelObject.getWorldQuaternion(new THREE.Quaternion()));
+      // Get rotation as a quaternion and then convert to Euler angles
+      const globalQuaternion = trackedModelObject.getWorldQuaternion(new THREE.Quaternion());
+      const globalRotation = quaternionToEuler(globalQuaternion);
       console.log('Global Position:', globalPosition);
       console.log('Global Rotation (radians):', globalRotation);
 
