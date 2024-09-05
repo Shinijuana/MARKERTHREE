@@ -1,4 +1,5 @@
-AFRAME.registerComponent('keep-visible-on-lost', {
+
+  AFRAME.registerComponent('keep-visible-on-lost', {
     init: function () {
       const sceneEl = this.el.sceneEl;
       const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
@@ -28,26 +29,31 @@ AFRAME.registerComponent('keep-visible-on-lost', {
           return;
         }
 
-        // Get the global position of the tracked model
+        // Get the global position and rotation of the tracked model
         const globalPosition = localToGlobal(trackedModel);
+        const globalRotation = trackedModelObject.rotation.clone();  // Clone rotation to avoid reference issues
         console.log('Global Position:', globalPosition);
+        console.log('Global Rotation:', globalRotation);
 
-        // Set the lost model's position to the global position of the tracked model
+        // Set the lost model's position and rotation
         lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
-        lostModel.setAttribute('rotation', '0 0 0'); // Reset rotation
+        lostModel.setAttribute('rotation', `${globalRotation.x} ${globalRotation.y} ${globalRotation.z}`);
 
-        // Set the scale to 100
-        lostModel.setAttribute('scale', '100 100 100');
-        console.log('Scale set to 100');
+        // Set the scale to 1000
+        lostModel.setAttribute('scale', '1000 1000 1000');
+        console.log('Scale set to 1000');
 
         // Make sure the lost model is visible
         lostModel.setAttribute('visible', 'true');
 
         // Debugging to ensure the model is correctly updated
         const lostModelPosition = lostModel.getAttribute('position');
+        const lostModelRotation = lostModel.getAttribute('rotation');
         const lostModelScale = lostModel.getAttribute('scale');
         console.log('Lost Model Position:', lostModelPosition);
+        console.log('Lost Model Rotation:', lostModelRotation);
         console.log('Lost Model Scale:', lostModelScale);
       });
     }
   });
+
