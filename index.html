@@ -160,13 +160,20 @@
 </a-scene>
 
     <!-- JavaScript to handle visibility after target is lost -->
-   <script>
+  <script>
       AFRAME.registerComponent('keep-visible-on-lost', {
         init: function () {
           const sceneEl = this.el.sceneEl;
           const arTarget = document.querySelector('#ar-target');  // The AR-tracked entity
           const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
           const lostModel = document.querySelector('#lost-model');  // The free model
+
+          // Helper function to convert local position to global
+          function localToGlobal(el, position) {
+            let globalPos = new THREE.Vector3();
+            el.object3D.getWorldPosition(globalPos);
+            return globalPos;
+          }
 
           // Listen for MindAR targetFound and targetLost events
           sceneEl.addEventListener('targetFound', () => {
@@ -178,16 +185,14 @@
 
           sceneEl.addEventListener('targetLost', () => {
             console.log('Target lost');
-            // Get the current position and rotation of the tracked model
-            const position = trackedModel.getAttribute('position');
-            const rotation = trackedModel.getAttribute('rotation');
+            // Get the global position of the tracked model
+            const trackedModelObject = trackedModel.object3D;
+            const globalPosition = localToGlobal(trackedModelObject, trackedModel.getAttribute('position'));
 
-            console.log('Position:', position); // Debugging the position
-            console.log('Rotation:', rotation); // Debugging the rotation
+            console.log('Global Position:', globalPosition); // Debugging the global position
 
-            // Set the free model's position and rotation to match the tracked model
-            lostModel.setAttribute('position', position);
-            lostModel.setAttribute('rotation', rotation);
+            // Set the free model's position to the global position
+            lostModel.setAttribute('position', globalPosition.toArray());
 
             // Show the free model
             lostModel.setAttribute('visible', 'true');
