@@ -1,7 +1,7 @@
 AFRAME.registerComponent('next-button', {
   init() {
     // Dichiarazione delle costanti
-    const char = document.getElementById('model');
+    const char = document.getElementById('tracked-model');
     const nextButton = document.getElementById('nextbutton');
     const phoneButton = document.getElementById('phoneButton');
     const mailButton = document.getElementById('emailButton');
