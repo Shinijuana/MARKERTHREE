@@ -33,8 +33,8 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       // Get the global position and rotation of the tracked model
       const globalPosition = localToGlobal(trackedModel);
 
-      // Log the rotation to understand its value
-      const globalRotation = trackedModelObject.rotation.clone();
+      // Get rotation as Euler angles in radians
+      const globalRotation = new THREE.Euler().setFromQuaternion(trackedModelObject.getWorldQuaternion(new THREE.Quaternion()));
       console.log('Global Position:', globalPosition);
       console.log('Global Rotation (radians):', globalRotation);
 
