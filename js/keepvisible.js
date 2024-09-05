@@ -9,6 +9,7 @@ AFRAME.registerComponent('keep-visible-on-lost', {
     anchor.setAttribute('id', 'lost-model-anchor');
     anchor.setAttribute('position', '0 0 0');
     sceneEl.appendChild(anchor);
+    console.log('Anchor entity created and appended to the scene:', anchor);
 
     // Helper function to convert local position to global
     function localToGlobal(el) {
@@ -62,9 +63,11 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       // Set the lost model's position and rotation relative to the anchor
       anchor.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
       anchor.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
+      console.log('Anchor entity position and rotation set to:', anchor.getAttribute('position'), anchor.getAttribute('rotation'));
 
       // Attach the lostModel to the anchor
       anchor.appendChild(lostModel);
+      console.log('Lost model appended to anchor:', lostModel);
 
       // Make sure the lost model is visible
       lostModel.setAttribute('visible', 'true');
