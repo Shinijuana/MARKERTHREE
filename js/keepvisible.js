@@ -11,16 +11,7 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       return globalPos;
     }
 
-    // Helper function to convert local rotation to global
-    function localToGlobalRotation(el) {
-      const globalRotation = el.object3D.rotation.clone();
-      return {
-        x: THREE.MathUtils.radToDeg(globalRotation.x),
-        y: THREE.MathUtils.radToDeg(globalRotation.y),
-        z: THREE.MathUtils.radToDeg(globalRotation.z)
-      };
-    }
-
+    // Listen for MindAR targetFound and targetLost events
     sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       const startImage = document.getElementById('startImage');
@@ -41,35 +32,31 @@ AFRAME.registerComponent('keep-visible-on-lost', {
 
       // Get the global position and rotation of the tracked model
       const globalPosition = localToGlobal(trackedModel);
-      const globalRotation = localToGlobalRotation(trackedModel);
+
+      // Get rotation as Euler angles in radians
+      const globalRotation = new THREE.Euler().setFromQuaternion(trackedModelObject.getWorldQuaternion(new THREE.Quaternion()));
       console.log('Global Position:', globalPosition);
-      console.log('Global Rotation (degrees):', globalRotation);
+      console.log('Global Rotation (radians):', globalRotation);
 
-      // Remove any previous instance of the lost model from the scene
-      const existingLostModel = document.querySelector('#lost-model');
-      if (existingLostModel) {
-        sceneEl.removeChild(existingLostModel);
-      }
+      // Convert global rotation to degrees
+      const rotationDegrees = {
+        x: THREE.MathUtils.radToDeg(globalRotation.x),
+        y: THREE.MathUtils.radToDeg(globalRotation.y),
+        z: THREE.MathUtils.radToDeg(globalRotation.z)
+      };
+      console.log('Global Rotation (degrees):', rotationDegrees);
 
-      // Create a new entity for the lost model
-      const newLostModel = document.createElement('a-entity');
-      newLostModel.setAttribute('id', 'lost-model');
-      newLostModel.setAttribute('gltf-model', '#busto');  // Ensure this is correct
-      newLostModel.setAttribute('scale', '2000 2000 2000');  // Use original scale
-      newLostModel.setAttribute('visible', 'true');
+      // Set the lost model's position and rotation
+      lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
+      lostModel.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
 
-      // Set position and rotation
-      newLostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
-      newLostModel.setAttribute('rotation', `${globalRotation.x} ${globalRotation.y} ${globalRotation.z}`);
+      // Make sure the lost model is visible
+      lostModel.setAttribute('visible', 'true');
 
-      // Append to scene and log confirmation
-      sceneEl.appendChild(newLostModel);
-      console.log('Lost model appended to scene with position and rotation');
-      
       // Debugging to ensure the model is correctly updated
-      const lostModelPosition = newLostModel.getAttribute('position');
-      const lostModelRotation = newLostModel.getAttribute('rotation');
-      const lostModelScale = newLostModel.getAttribute('scale');
+      const lostModelPosition = lostModel.getAttribute('position');
+      const lostModelRotation = lostModel.getAttribute('rotation');
+      const lostModelScale = lostModel.getAttribute('scale');
       console.log('Lost Model Position:', lostModelPosition);
       console.log('Lost Model Rotation:', lostModelRotation);
       console.log('Lost Model Scale:', lostModelScale);
