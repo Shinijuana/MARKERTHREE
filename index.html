@@ -88,9 +88,9 @@
  
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
+    <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
       <a-entity
-        id="model"
+        id="tracked-model"
         rotation="90 0 0" 
         position="0 0 0" 
         scale="2 2 2" 
@@ -155,51 +155,48 @@
       </a-text>
     </a-plane>
     </a-entity>
+    
+  <a-entity id="lost-model" gltf-model="#busto" scale="2 2 2" position="0 0 0" visible="false"></a-entity>
 </a-scene>
-  
-<!-- KEEPVISIBLE -->
-<script>
-AFRAME.registerComponent('keepvisibleonlost', {
-    init: function() {
-      const el = this.el;  // L'entità ancorata al target (modello 3D)
-      
-      // Crea una copia statica del modello all'inizio
-      const staticEntity = document.createElement('a-entity');
-      staticEntity.setAttribute('gltf-model', el.getAttribute('gltf-model'));
-      staticEntity.setAttribute('position', el.getAttribute('position'));
-      staticEntity.setAttribute('rotation', el.getAttribute('rotation'));
-      staticEntity.setAttribute('scale', el.getAttribute('scale'));
-      staticEntity.setAttribute('visible', 'false'); // Nascondi inizialmente
-      el.sceneEl.appendChild(staticEntity);
 
-      // Ascolta l'evento di quando viene trovato il target
-      el.sceneEl.addEventListener('targetFound', (e) => {
-        console.log("Target found");
-        el.setAttribute('visible', 'true');  // Rendi visibile il modello ancorato al target
-        staticEntity.setAttribute('visible', 'false'); // Nascondi la copia statica
+    <!-- JavaScript to handle visibility after target is lost -->
+    <script>
+      AFRAME.registerComponent('keep-visible-on-lost', {
+        init: function () {
+          const sceneEl = this.el.sceneEl;
+          const arTarget = document.querySelector('#ar-target');  // The AR-tracked entity
+          const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
+          const lostModel = document.querySelector('#lost-model');  // The free model
+
+          // Listen for MindAR targetFound and targetLost events
+          sceneEl.addEventListener('targetFound', () => {
+            console.log('Target found');
+            // When the target is found, show the tracked model and hide the free model
+            trackedModel.setAttribute('visible', 'true');
+            lostModel.setAttribute('visible', 'false');
+          });
+
+          sceneEl.addEventListener('targetLost', () => {
+            console.log('Target lost');
+            // When the target is lost, hide the tracked model and show the free model in its place
+            trackedModel.setAttribute('visible', 'false');
+
+            // Get the current position and rotation of the tracked model
+            const position = trackedModel.getAttribute('position');
+            const rotation = trackedModel.getAttribute('rotation');
+
+            // Set the free model's position and rotation to match the tracked model
+            lostModel.setAttribute('position', position);
+            lostModel.setAttribute('rotation', rotation);
+
+            // Show the free model
+            lostModel.setAttribute('visible', 'true');
+          });
+        }
       });
 
-      // Ascolta l'evento di quando viene perso il target
-      el.sceneEl.addEventListener('targetLost', (e) => {
-        console.log("Target lost");
-
-        // Ottieni la posizione e rotazione corrente dell'oggetto
-        const currentPosition = el.getAttribute('position');
-        const currentRotation = el.getAttribute('rotation');
-
-        // Aggiorna la posizione e rotazione della copia statica
-        staticEntity.setAttribute('position', currentPosition);
-        staticEntity.setAttribute('rotation', currentRotation);
-
-        // Rendi visibile la copia statica e nascondi l'oggetto originale
-        staticEntity.setAttribute('visible', 'true');
-        el.setAttribute('visible', 'false');
-      });
-    }
-  });
-
-  // Applica il componente 'keepvisibleonlost' al modello
-  document.querySelector('#model').setAttribute('keepvisibleonlost', '');
-</script>
+      // Apply the keep-visible-on-lost component to the scene
+      document.querySelector('a-scene').setAttribute('keep-visible-on-lost', '');
+    </script>
 </body>
 </html>
