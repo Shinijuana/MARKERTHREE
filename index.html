@@ -161,54 +161,70 @@
 
     <!-- JavaScript to handle visibility after target is lost -->
   <script>
-      AFRAME.registerComponent('keep-visible-on-lost', {
-        init: function () {
-          const sceneEl = this.el.sceneEl;
-          const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
-          const lostModel = document.querySelector('#lost-model');  // The free model
+  AFRAME.registerComponent('keep-visible-on-lost', {
+    init: function () {
+      const sceneEl = this.el.sceneEl;
+      const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
+      const lostModel = document.querySelector('#lost-model');  // The free model
 
-          // Helper function to convert local position to global
-          function localToGlobal(el) {
-            const globalPos = new THREE.Vector3();
-            el.object3D.getWorldPosition(globalPos);
-            return globalPos;
-          }
+      // Helper function to convert local position to global
+      function localToGlobal(el) {
+        const globalPos = new THREE.Vector3();
+        el.object3D.getWorldPosition(globalPos);
+        return globalPos;
+      }
 
-          // Listen for MindAR targetFound and targetLost events
-          sceneEl.addEventListener('targetFound', () => {
-            console.log('Target found');
-            // When the target is found, show the tracked model and hide the free model
-            trackedModel.setAttribute('visible', 'true');
-            lostModel.setAttribute('visible', 'false');
-          });
-
-          sceneEl.addEventListener('targetLost', () => {
-            console.log('Target lost');
-
-            // Ensure trackedModel object3D is available
-            const trackedModelObject = trackedModel.object3D;
-            if (!trackedModelObject) {
-              console.error('trackedModel.object3D is not available');
-              return;
-            }
-
-            // Get the global position of the tracked model
-            const globalPosition = localToGlobal(trackedModel);
-
-            console.log('Global Position:', globalPosition); // Debugging the global position
-
-            // Set the free model's position to the global position
-            lostModel.setAttribute('position', globalPosition.toArray());
-
-            // Show the free model
-            lostModel.setAttribute('visible', 'true');
-            console.log('Lost model visible'); // Debugging visibility
-          });
-        }
+      // Listen for MindAR targetFound and targetLost events
+      sceneEl.addEventListener('targetFound', () => {
+        console.log('Target found');
+        // When the target is found, show the tracked model and hide the free model
+        trackedModel.setAttribute('visible', 'true');
+        lostModel.setAttribute('visible', 'false');
       });
 
-      // Apply the keep-visible-on-lost component to the scene
-      document.querySelector('a-scene').setAttribute('keep-visible-on-lost', '');
-    </script>
+      sceneEl.addEventListener('targetLost', () => {
+        console.log('Target lost');
+
+        // Ensure trackedModel object3D is available
+        const trackedModelObject = trackedModel.object3D;
+        if (!trackedModelObject) {
+          console.error('trackedModel.object3D is not available');
+          return;
+        }
+
+        // Get the global position of the tracked model
+        const globalPosition = localToGlobal(trackedModel);
+        console.log('Global Position:', globalPosition); // Debugging the global position
+
+        // Set the free model's position to the global position
+        // Note: Using three.js Vector3 toArray() converts the position to an array format
+        lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
+
+        // Check if the model is within the camera view
+        const cameraEl = document.querySelector('[camera]');
+        const cameraPosition = new THREE.Vector3();
+        cameraEl.object3D.getWorldPosition(cameraPosition);
+
+        // Debugging camera position
+        console.log('Camera Position:', cameraPosition);
+
+        // Adjust visibility based on distance (optional)
+        const distance = globalPosition.distanceTo(cameraPosition);
+        console.log('Distance to camera:', distance);
+
+        // Optional: Hide lost model if it is too far from the camera
+        if (distance > 100) { // Adjust this value as needed
+          lostModel.setAttribute('visible', 'false');
+        } else {
+          lostModel.setAttribute('visible', 'true');
+        }
+      });
+    }
+  });
+
+  // Apply the keep-visible-on-lost component to the scene
+  document.querySelector('a-scene').setAttribute('keep-visible-on-lost', '');
+</script>
+
 </body>
 </html>
