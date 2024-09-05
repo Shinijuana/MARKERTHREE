@@ -33,16 +33,19 @@
 
         // Get the global position and rotation of the tracked model
         const globalPosition = localToGlobal(trackedModel);
-        const globalRotation = trackedModelObject.rotation.clone();  // Clone rotation to avoid reference issues
-        console.log('Global Position:', globalPosition);
-        console.log('Global Rotation:', globalRotation);
 
-        // Convert global rotation to degrees if necessary
+        // Get rotation as an Euler angle (degrees)
+        const globalRotation = trackedModelObject.rotation.clone();
+        console.log('Global Position:', globalPosition);
+        console.log('Global Rotation (radians):', globalRotation);
+
+        // Convert global rotation to degrees
         const rotationDegrees = {
           x: THREE.MathUtils.radToDeg(globalRotation.x),
           y: THREE.MathUtils.radToDeg(globalRotation.y),
           z: THREE.MathUtils.radToDeg(globalRotation.z)
         };
+        console.log('Global Rotation (degrees):', rotationDegrees);
 
         // Set the lost model's position and rotation
         lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
