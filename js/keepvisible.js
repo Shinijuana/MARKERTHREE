@@ -39,9 +39,9 @@
         lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
         lostModel.setAttribute('rotation', `${globalRotation.x} ${globalRotation.y} ${globalRotation.z}`);
 
-        // Set the scale to 1000
-        lostModel.setAttribute('scale', '1000 1000 1000');
-        console.log('Scale set to 1000');
+        // Set the scale to 10000
+        lostModel.setAttribute('scale', '10000 10000 10000');
+        console.log('Scale set to 10000');
 
         // Make sure the lost model is visible
         lostModel.setAttribute('visible', 'true');
@@ -56,4 +56,3 @@
       });
     }
   });
-
