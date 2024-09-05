@@ -4,6 +4,12 @@ AFRAME.registerComponent('keep-visible-on-lost', {
     const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
     const lostModel = document.querySelector('#lost-model');  // The free model
 
+    // Create an anchor entity to hold the lostModel
+    const anchor = document.createElement('a-entity');
+    anchor.setAttribute('id', 'lost-model-anchor');
+    anchor.setAttribute('position', '0 0 0');
+    sceneEl.appendChild(anchor);
+
     // Helper function to convert local position to global
     function localToGlobal(el) {
       const globalPos = new THREE.Vector3();
@@ -53,9 +59,12 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       };
       console.log('Global Rotation (degrees):', rotationDegrees);
 
-      // Set the lost model's position and rotation
-      lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
-      lostModel.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
+      // Set the lost model's position and rotation relative to the anchor
+      anchor.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
+      anchor.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
+
+      // Attach the lostModel to the anchor
+      anchor.appendChild(lostModel);
 
       // Make sure the lost model is visible
       lostModel.setAttribute('visible', 'true');
