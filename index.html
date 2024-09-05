@@ -84,7 +84,7 @@
  
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost >
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" >
       <a-entity
         id="model"
         rotation="90 0 0" 
@@ -156,29 +156,44 @@
  <!-- KEEPVISIBLE -->
 <script>
 AFRAME.registerComponent('keepvisibleonlost', {
-  init() {
-    const el = this.el;
-    const startImage = document.getElementById('startImage');
-    
+    init: function() {
+      const el = this.el;  // L'entità ancorata (a-box nel nostro caso)
+      
+      // Ascolta l'evento di quando viene trovato il target
+      el.sceneEl.addEventListener('targetFound', (e) => {
+        console.log("Target found");
+        el.setAttribute('visible', 'true');  // Rendi l'oggetto visibile quando il target viene trovato
+      });
 
-    // Inizialmente il modello è visibile
-    el.object3D.visible = true;
+      // Ascolta l'evento di quando viene perso il target
+      el.sceneEl.addEventListener('targetLost', (e) => {
+        console.log("Target lost");
 
-    // Evento targetFound
-    el.sceneEl.addEventListener('targetFound', (event) => {
-      console.log('Target found');
-   startImage.setAttribute('visible', 'false');
-      el.object3D.visible = true;
-    });
+        // Ottieni la posizione corrente
+        const currentPosition = el.getAttribute('position');
+        const currentRotation = el.getAttribute('rotation');
 
-    // Evento targetLost
-    el.sceneEl.addEventListener('targetLost', (event) => {
-      console.log('Target lost');
-      // Non nascondere il modello, ma mantenerlo visibile
-      el.object3D.visible = true;
-    });
-  },
-});
+        // Sgancia l'oggetto dall'ancora
+        const newEntity = document.createElement('a-entity');
+        newEntity.setAttribute('position', currentPosition);
+        newEntity.setAttribute('rotation', currentRotation);
+        newEntity.setAttribute('geometry', el.getAttribute('geometry'));
+        newEntity.setAttribute('material', el.getAttribute('material'));
+        
+        // Rendi visibile la nuova entità
+        newEntity.setAttribute('visible', 'true');
+
+        // Aggiungi la nuova entità alla scena
+        el.sceneEl.appendChild(newEntity);
+
+        // Nascondi l'entità originale (ancorata al target)
+        el.setAttribute('visible', 'false');
+      });
+    }
+  });
+
+  // Applica il componente 'keepvisibleonlost' al modello
+  document.querySelector('#model').setAttribute('keepvisibleonlost', '');
 </script>
 
   <!-- BOTTONI -->
