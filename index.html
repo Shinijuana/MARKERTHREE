@@ -160,7 +160,8 @@
 </a-scene>
 
     <!-- JavaScript to handle visibility after target is lost -->
-  <script>
+
+ <script>
   AFRAME.registerComponent('keep-visible-on-lost', {
     init: function () {
       const sceneEl = this.el.sceneEl;
@@ -196,28 +197,16 @@
         const globalPosition = localToGlobal(trackedModel);
         console.log('Global Position:', globalPosition); // Debugging the global position
 
-        // Set the free model's position to the global position
-        // Note: Using three.js Vector3 toArray() converts the position to an array format
-        lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
+        // Set a test position near the origin
+        lostModel.setAttribute('position', '0 0 -5'); // Test position
+        lostModel.setAttribute('rotation', '0 0 0'); // Reset rotation
 
-        // Check if the model is within the camera view
-        const cameraEl = document.querySelector('[camera]');
-        const cameraPosition = new THREE.Vector3();
-        cameraEl.object3D.getWorldPosition(cameraPosition);
+        // Debugging to ensure model is visible
+        lostModel.setAttribute('visible', 'true');
 
-        // Debugging camera position
-        console.log('Camera Position:', cameraPosition);
-
-        // Adjust visibility based on distance (optional)
-        const distance = globalPosition.distanceTo(cameraPosition);
-        console.log('Distance to camera:', distance);
-
-        // Optional: Hide lost model if it is too far from the camera
-        if (distance > 100) { // Adjust this value as needed
-          lostModel.setAttribute('visible', 'false');
-        } else {
-          lostModel.setAttribute('visible', 'true');
-        }
+        // Optionally log position to ensure it's set correctly
+        const lostModelPosition = lostModel.getAttribute('position');
+        console.log('Lost Model Position:', lostModelPosition);
       });
     }
   });
