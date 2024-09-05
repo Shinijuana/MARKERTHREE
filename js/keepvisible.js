@@ -1,4 +1,3 @@
-
   AFRAME.registerComponent('keep-visible-on-lost', {
     init: function () {
       const sceneEl = this.el.sceneEl;
