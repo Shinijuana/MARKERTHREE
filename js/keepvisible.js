@@ -4,13 +4,6 @@ AFRAME.registerComponent('keep-visible-on-lost', {
     const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
     const lostModel = document.querySelector('#lost-model');  // The free model
 
-    // Create an anchor entity to hold the lostModel
-    const anchor = document.createElement('a-entity');
-    anchor.setAttribute('id', 'lost-model-anchor');
-    anchor.setAttribute('position', '0 0 0');
-    sceneEl.appendChild(anchor);
-    console.log('Anchor entity created and appended to the scene:', anchor);
-
     // Helper function to convert local position to global
     function localToGlobal(el) {
       const globalPos = new THREE.Vector3();
@@ -18,13 +11,16 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       return globalPos;
     }
 
-    // Helper function to convert global rotation to Euler angles
-    function quaternionToEuler(quat) {
-      const euler = new THREE.Euler().setFromQuaternion(quat);
-      return euler;
+    // Helper function to convert local rotation to global
+    function localToGlobalRotation(el) {
+      const globalRotation = el.object3D.rotation.clone();
+      return {
+        x: THREE.MathUtils.radToDeg(globalRotation.x),
+        y: THREE.MathUtils.radToDeg(globalRotation.y),
+        z: THREE.MathUtils.radToDeg(globalRotation.z)
+      };
     }
 
-    // Listen for MindAR targetFound and targetLost events
     sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       const startImage = document.getElementById('startImage');
@@ -45,37 +41,35 @@ AFRAME.registerComponent('keep-visible-on-lost', {
 
       // Get the global position and rotation of the tracked model
       const globalPosition = localToGlobal(trackedModel);
-
-      // Get rotation as a quaternion and then convert to Euler angles
-      const globalQuaternion = trackedModelObject.getWorldQuaternion(new THREE.Quaternion());
-      const globalRotation = quaternionToEuler(globalQuaternion);
+      const globalRotation = localToGlobalRotation(trackedModel);
       console.log('Global Position:', globalPosition);
-      console.log('Global Rotation (radians):', globalRotation);
+      console.log('Global Rotation (degrees):', globalRotation);
 
-      // Convert global rotation to degrees
-      const rotationDegrees = {
-        x: THREE.MathUtils.radToDeg(globalRotation.x),
-        y: THREE.MathUtils.radToDeg(globalRotation.y),
-        z: THREE.MathUtils.radToDeg(globalRotation.z)
-      };
-      console.log('Global Rotation (degrees):', rotationDegrees);
+      // Remove any previous instance of the lost model from the scene
+      const existingLostModel = document.querySelector('#lost-model');
+      if (existingLostModel) {
+        sceneEl.removeChild(existingLostModel);
+      }
 
-      // Set the lost model's position and rotation relative to the anchor
-      anchor.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
-      anchor.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
-      console.log('Anchor entity position and rotation set to:', anchor.getAttribute('position'), anchor.getAttribute('rotation'));
+      // Create a new entity for the lost model
+      const newLostModel = document.createElement('a-entity');
+      newLostModel.setAttribute('id', 'lost-model');
+      newLostModel.setAttribute('gltf-model', '#busto');  // Ensure this is correct
+      newLostModel.setAttribute('scale', '2000 2000 2000');  // Use original scale
+      newLostModel.setAttribute('visible', 'true');
 
-      // Attach the lostModel to the anchor
-      anchor.appendChild(lostModel);
-      console.log('Lost model appended to anchor:', lostModel);
+      // Set position and rotation
+      newLostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
+      newLostModel.setAttribute('rotation', `${globalRotation.x} ${globalRotation.y} ${globalRotation.z}`);
 
-      // Make sure the lost model is visible
-      lostModel.setAttribute('visible', 'true');
-
+      // Append to scene and log confirmation
+      sceneEl.appendChild(newLostModel);
+      console.log('Lost model appended to scene with position and rotation');
+      
       // Debugging to ensure the model is correctly updated
-      const lostModelPosition = lostModel.getAttribute('position');
-      const lostModelRotation = lostModel.getAttribute('rotation');
-      const lostModelScale = lostModel.getAttribute('scale');
+      const lostModelPosition = newLostModel.getAttribute('position');
+      const lostModelRotation = newLostModel.getAttribute('rotation');
+      const lostModelScale = newLostModel.getAttribute('scale');
       console.log('Lost Model Position:', lostModelPosition);
       console.log('Lost Model Rotation:', lostModelRotation);
       console.log('Lost Model Scale:', lostModelScale);
