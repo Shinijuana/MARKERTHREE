@@ -88,7 +88,7 @@
  
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" >
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
       <a-entity
         id="model"
         rotation="90 0 0" 
@@ -156,41 +156,43 @@
     </a-plane>
     </a-entity>
 </a-scene>
-
- <!-- KEEPVISIBLE -->
+  
+<!-- KEEPVISIBLE -->
 <script>
 AFRAME.registerComponent('keepvisibleonlost', {
     init: function() {
-      const el = this.el;  // L'entità ancorata (a-box nel nostro caso)
+      const el = this.el;  // L'entità ancorata al target (modello 3D)
       
+      // Crea una copia statica del modello all'inizio
+      const staticEntity = document.createElement('a-entity');
+      staticEntity.setAttribute('gltf-model', el.getAttribute('gltf-model'));
+      staticEntity.setAttribute('position', el.getAttribute('position'));
+      staticEntity.setAttribute('rotation', el.getAttribute('rotation'));
+      staticEntity.setAttribute('scale', el.getAttribute('scale'));
+      staticEntity.setAttribute('visible', 'false'); // Nascondi inizialmente
+      el.sceneEl.appendChild(staticEntity);
+
       // Ascolta l'evento di quando viene trovato il target
       el.sceneEl.addEventListener('targetFound', (e) => {
         console.log("Target found");
-        el.setAttribute('visible', 'true');  // Rendi l'oggetto visibile quando il target viene trovato
+        el.setAttribute('visible', 'true');  // Rendi visibile il modello ancorato al target
+        staticEntity.setAttribute('visible', 'false'); // Nascondi la copia statica
       });
 
       // Ascolta l'evento di quando viene perso il target
       el.sceneEl.addEventListener('targetLost', (e) => {
         console.log("Target lost");
 
-        // Ottieni la posizione corrente
+        // Ottieni la posizione e rotazione corrente dell'oggetto
         const currentPosition = el.getAttribute('position');
         const currentRotation = el.getAttribute('rotation');
 
-        // Sgancia l'oggetto dall'ancora
-        const newEntity = document.createElement('a-entity');
-        newEntity.setAttribute('position', currentPosition);
-        newEntity.setAttribute('rotation', currentRotation);
-        newEntity.setAttribute('geometry', el.getAttribute('geometry'));
-        newEntity.setAttribute('material', el.getAttribute('material'));
-        
-        // Rendi visibile la nuova entità
-        newEntity.setAttribute('visible', 'true');
+        // Aggiorna la posizione e rotazione della copia statica
+        staticEntity.setAttribute('position', currentPosition);
+        staticEntity.setAttribute('rotation', currentRotation);
 
-        // Aggiungi la nuova entità alla scena
-        el.sceneEl.appendChild(newEntity);
-
-        // Nascondi l'entità originale (ancorata al target)
+        // Rendi visibile la copia statica e nascondi l'oggetto originale
+        staticEntity.setAttribute('visible', 'true');
         el.setAttribute('visible', 'false');
       });
     }
