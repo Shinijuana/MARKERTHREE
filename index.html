@@ -82,7 +82,7 @@
  
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" >
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost >
       <a-entity
         id="model"
         rotation="90 0 0" 
@@ -171,9 +171,6 @@
       });
     }
   });
-
-  // Applica il componente al target
-  document.getElementById('target-entity').setAttribute('keepvisibleonlost', '');
 </script>
 
   <!-- BOTTONI -->
