@@ -1,3 +1,4 @@
+
   AFRAME.registerComponent('keep-visible-on-lost', {
     init: function () {
       const sceneEl = this.el.sceneEl;
@@ -14,6 +15,8 @@
       // Listen for MindAR targetFound and targetLost events
       sceneEl.addEventListener('targetFound', () => {
         console.log('Target found');
+        const startImage = document.getElementById('startImage');
+        startImage.setAttribute('visible', 'false');
         trackedModel.setAttribute('visible', 'true');
         lostModel.setAttribute('visible', 'false');
       });
@@ -34,9 +37,16 @@
         console.log('Global Position:', globalPosition);
         console.log('Global Rotation:', globalRotation);
 
+        // Convert global rotation to degrees if necessary
+        const rotationDegrees = {
+          x: THREE.MathUtils.radToDeg(globalRotation.x),
+          y: THREE.MathUtils.radToDeg(globalRotation.y),
+          z: THREE.MathUtils.radToDeg(globalRotation.z)
+        };
+
         // Set the lost model's position and rotation
         lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
-        lostModel.setAttribute('rotation', `${globalRotation.x} ${globalRotation.y} ${globalRotation.z}`);
+        lostModel.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
 
 
         // Make sure the lost model is visible
