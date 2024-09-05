@@ -153,24 +153,29 @@
 
  <!-- KEEPVISIBLE -->
   <script>
-  AFRAME.registerComponent('keepvisibleonlost', {
-    init: function () {
-      var el = this.el;
-      
-      // Ascolta l'evento targetLost
-      el.sceneEl.addEventListener("targetLost", function () {
-        // Sovrascrivi la visibilità per mantenere visibile l'oggetto
-        el.setAttribute('visible', true);
-      });
+ AFRAME.registerComponent('keepvisibleonlost', {
+  init: function () {
+    var el = this.el;
 
-      // Ascolta l'evento targetFound (opzionale se vuoi fare qualcosa quando viene trovato)
-      el.sceneEl.addEventListener("targetFound", function () {
-        console.log("Target trovato");
-        const startImage = document.getElementById('startImage');
-        startImage.setAttribute('visible', 'false');
-      });
-    }
-  });
+    // Ascolta l'evento targetLost
+    el.sceneEl.addEventListener("targetLost", function () {
+      // Accedi all'oggetto 3D tramite Three.js e imposta la visibilità
+      el.object3D.visible = true;
+    });
+
+    // Ascolta l'evento targetFound (opzionale se vuoi fare qualcosa quando viene trovato)
+    el.sceneEl.addEventListener("targetFound", function () {
+      console.log("Target trovato");
+
+      // Opzionale: Nascondi un altro oggetto (ad esempio, un'immagine di avvio)
+      const startImage = document.getElementById('startImage');
+      if (startImage) {
+        startImage.object3D.visible = false; // Usa object3D per nascondere l'oggetto
+      }
+    });
+  }
+});
+
 </script>
 
   <!-- BOTTONI -->
