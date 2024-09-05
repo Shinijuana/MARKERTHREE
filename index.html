@@ -9,6 +9,8 @@
 
   <!-- Configurazione di A-Frame con MindAR -->
   <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/gas.mind; filterMinCF:0.01; filterBeta: 100; warmupTolerance: 1; missTolerance: 1;" 
+           webxr="optionalFeatures:  hit-test;" 
+           ar-hit-test="target:#example-target;"
            tensorflow-contour-processor
            typewriting
            next-button
@@ -154,27 +156,83 @@
  <!-- KEEPVISIBLE -->
   <script>
  AFRAME.registerComponent('keepvisibleonlost', {
+  schema: {
+    modelId: {type: 'string', default: ''}
+  },
+  
   init: function () {
     var el = this.el;
+    var lastPosition = new THREE.Vector3();
+    var lastRotation = new THREE.Euler();
+    var lastScale = new THREE.Vector3();
+    var clone = null;
+    var hitTestSource = null;
+    var xrSession = null;
 
-    // Ascolta l'evento targetLost
-    el.sceneEl.addEventListener("targetLost", function () {
-      // Accedi all'oggetto 3D tramite Three.js e imposta la visibilità
-      el.object3D.visible = true;
+    // Attiva il hit-test se disponibile
+    el.sceneEl.addEventListener('enter-vr', function () {
+      if (el.sceneEl.is('ar-mode')) {
+        xrSession = el.sceneEl.xrSession;
+        xrSession.requestReferenceSpace('viewer').then(function (referenceSpace) {
+          return xrSession.requestHitTestSource({space: referenceSpace});
+        }).then(function (source) {
+          hitTestSource = source;
+        });
+      }
     });
 
-    // Ascolta l'evento targetFound (opzionale se vuoi fare qualcosa quando viene trovato)
+    // Quando il target è perso
+    el.sceneEl.addEventListener("targetLost", function () {
+      console.log("Target perso");
+
+      // Ottieni le coordinate da hit-test se disponibile
+      if (hitTestSource && xrSession) {
+        xrSession.requestAnimationFrame(function (time, frame) {
+          const hitTestResults = frame.getHitTestResults(hitTestSource);
+          if (hitTestResults.length > 0) {
+            const hit = hitTestResults[0];
+            const hitPose = hit.getPose(el.sceneEl.renderer.xr.getReferenceSpace());
+
+            lastPosition.copy(hitPose.transform.position);
+            lastRotation.copy(hitPose.transform.orientation);
+          }
+        });
+      } else {
+        // Salva l'ultima posizione, rotazione e scala del target
+        lastPosition.copy(el.object3D.position);
+        lastRotation.copy(el.object3D.rotation);
+        lastScale.copy(el.object3D.scale);
+      }
+
+      // Crea un clone del modello e posizionalo nelle ultime coordinate note
+      if (!clone) {
+        var model = document.getElementById(el.getAttribute('keepvisibleonlost').modelId);
+        clone = model.cloneNode(true); // Crea un clone dell'elemento modello
+        el.sceneEl.appendChild(clone); // Aggiungilo alla scena
+      }
+
+      // Imposta la posizione, rotazione e scala del clone
+      clone.object3D.position.copy(lastPosition);
+      clone.object3D.rotation.copy(lastRotation);
+      clone.object3D.scale.copy(lastScale);
+
+      // Mantieni visibile il clone quando il target è perso
+      clone.setAttribute('visible', true);
+    });
+
+    // Quando il target viene trovato
     el.sceneEl.addEventListener("targetFound", function () {
       console.log("Target trovato");
-
-      // Opzionale: Nascondi un altro oggetto (ad esempio, un'immagine di avvio)
       const startImage = document.getElementById('startImage');
-      if (startImage) {
-        startImage.object3D.visible = false; // Usa object3D per nascondere l'oggetto
+      startImage.setAttribute('visible', 'false');
+      // Nascondi il clone
+      if (clone) {
+        clone.setAttribute('visible', false);
       }
     });
   }
 });
+
 
 </script>
 
