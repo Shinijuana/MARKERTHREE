@@ -164,13 +164,12 @@
       AFRAME.registerComponent('keep-visible-on-lost', {
         init: function () {
           const sceneEl = this.el.sceneEl;
-          const arTarget = document.querySelector('#ar-target');  // The AR-tracked entity
           const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
           const lostModel = document.querySelector('#lost-model');  // The free model
 
           // Helper function to convert local position to global
-          function localToGlobal(el, position) {
-            let globalPos = new THREE.Vector3();
+          function localToGlobal(el) {
+            const globalPos = new THREE.Vector3();
             el.object3D.getWorldPosition(globalPos);
             return globalPos;
           }
@@ -185,9 +184,16 @@
 
           sceneEl.addEventListener('targetLost', () => {
             console.log('Target lost');
-            // Get the global position of the tracked model
+
+            // Ensure trackedModel object3D is available
             const trackedModelObject = trackedModel.object3D;
-            const globalPosition = localToGlobal(trackedModelObject, trackedModel.getAttribute('position'));
+            if (!trackedModelObject) {
+              console.error('trackedModel.object3D is not available');
+              return;
+            }
+
+            // Get the global position of the tracked model
+            const globalPosition = localToGlobal(trackedModel);
 
             console.log('Global Position:', globalPosition); // Debugging the global position
 
