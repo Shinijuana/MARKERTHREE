@@ -7,6 +7,7 @@
     <script src="js/next-button.js"></script>
     <script src="js/opencv.js"></script>
     <script src="js/typewriting.js"></script>
+    <script src="js/keepvisible.js"></script>
 </head>
 <body>
   <!-- Overlay di scansione per il tracciamento dell'image target -->
@@ -86,7 +87,6 @@
     <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
     <a-light type="ambient" intensity="0.7"></a-light>
  
-
     <!-- Entità per il target AR e il modello 3D -->
     <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1">
       <a-entity
@@ -158,73 +158,5 @@
     
   <a-entity id="lost-model" gltf-model="#busto" scale="10 10 10" position="0 0 0" visible="false"></a-entity>
 </a-scene>
-
-    <!-- JavaScript to handle visibility after target is lost -->
-
-<script>
-  AFRAME.registerComponent('keep-visible-on-lost', {
-    init: function () {
-      const sceneEl = this.el.sceneEl;
-      const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
-      const lostModel = document.querySelector('#lost-model');  // The free model
-
-      // Helper function to convert local position to global
-      function localToGlobal(el) {
-        const globalPos = new THREE.Vector3();
-        el.object3D.getWorldPosition(globalPos);
-        return globalPos;
-      }
-
-      // Helper function to calculate scale based on distance
-      function calculateScale(distance) {
-        // Use a reasonable scale factor for testing
-        const baseScale = 10;
-        return baseScale * (1 / distance);
-      }
-
-      // Listen for MindAR targetFound and targetLost events
-      sceneEl.addEventListener('targetFound', () => {
-        console.log('Target found');
-        trackedModel.setAttribute('visible', 'true');
-        lostModel.setAttribute('visible', 'false');
-      });
-
-      sceneEl.addEventListener('targetLost', () => {
-        console.log('Target lost');
-
-        // Ensure trackedModel object3D is available
-        const trackedModelObject = trackedModel.object3D;
-        if (!trackedModelObject) {
-          console.error('trackedModel.object3D is not available');
-          return;
-        }
-
-        // Get the global position of the tracked model
-        const globalPosition = localToGlobal(trackedModel);
-        console.log('Global Position:', globalPosition);
-
-        // Set the lost model's position
-        lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
-        lostModel.setAttribute('rotation', '0 0 0'); // Reset rotation
-
-        // Set a fixed scale for testing
-        const testScale = '10 10 10';
-        lostModel.setAttribute('scale', testScale);
-        console.log('Test Scale:', testScale);
-
-        // Make sure the lost model is visible
-        lostModel.setAttribute('visible', 'true');
-
-        // Debugging to ensure the model is correctly updated
-        const lostModelPosition = lostModel.getAttribute('position');
-        console.log('Lost Model Position:', lostModelPosition);
-      });
-    }
-  });
-
-  // Apply the keep-visible-on-lost component to the scene
-  document.querySelector('a-scene').setAttribute('keep-visible-on-lost', '');
-</script>
-
 </body>
 </html>
