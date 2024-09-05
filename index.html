@@ -82,7 +82,7 @@
  
 
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="example-target" mindar-image-target="targetIndex: 0" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0; autoHide: false" position="0 0 0" rotation="0 0 0" scale="1 1 1" keepvisibleonlost>
       <a-entity
         id="model"
         rotation="90 0 0" 
@@ -151,10 +151,8 @@
     </a-entity>
 </a-scene>
 
-  <!-- KEEPVISIBLE -->
-
  <!-- KEEPVISIBLE -->
-    <script>
+<script>
 AFRAME.registerComponent('keepvisibleonlost', {
   init() {
     const el = this.el;
