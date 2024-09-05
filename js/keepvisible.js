@@ -3,12 +3,19 @@ AFRAME.registerComponent('keep-visible-on-lost', {
     const sceneEl = this.el.sceneEl;
     const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
     const lostModel = document.querySelector('#lost-model');  // The free model
+    const staticAnchor = document.querySelector('#static-anchor');  // Static anchor entity
 
     // Helper function to convert local position to global
     function localToGlobal(el) {
       const globalPos = new THREE.Vector3();
       el.object3D.getWorldPosition(globalPos);
       return globalPos;
+    }
+
+    // Ensure the static anchor entity exists
+    if (!staticAnchor) {
+      console.error('Static anchor entity not found');
+      return;
     }
 
     // Listen for MindAR targetFound and targetLost events
@@ -46,7 +53,10 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       };
       console.log('Global Rotation (degrees):', rotationDegrees);
 
-      // Set the lost model's position and rotation
+      // Append the lost model to the static anchor to avoid camera movement
+      staticAnchor.appendChild(lostModel);
+
+      // Set the lost model's position and rotation relative to the static anchor
       lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
       lostModel.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
 
