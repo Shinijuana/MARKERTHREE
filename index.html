@@ -177,15 +177,14 @@
 
       // Helper function to calculate scale based on distance
       function calculateScale(distance) {
-        // Adjust scale factor as needed
-        const baseScale = 1;
-        return baseScale * (1 / distance) * 100; // Scale factor example
+        // Use a reasonable scale factor for testing
+        const baseScale = 10;
+        return baseScale * (1 / distance);
       }
 
       // Listen for MindAR targetFound and targetLost events
       sceneEl.addEventListener('targetFound', () => {
         console.log('Target found');
-        // When the target is found, show the tracked model and hide the free model
         trackedModel.setAttribute('visible', 'true');
         lostModel.setAttribute('visible', 'false');
       });
@@ -202,26 +201,23 @@
 
         // Get the global position of the tracked model
         const globalPosition = localToGlobal(trackedModel);
-        console.log('Global Position:', globalPosition); // Debugging the global position
+        console.log('Global Position:', globalPosition);
 
         // Set the lost model's position
         lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
         lostModel.setAttribute('rotation', '0 0 0'); // Reset rotation
 
-        // Calculate the distance from the camera
-        const cameraEl = document.querySelector('[camera]');
-        const cameraPosition = new THREE.Vector3();
-        cameraEl.object3D.getWorldPosition(cameraPosition);
-        const distance = globalPosition.distanceTo(cameraPosition);
-        console.log('Distance to camera:', distance);
-
-        // Calculate and set the scale of the lost model
-        const scale = calculateScale(distance);
-        lostModel.setAttribute('scale', `${scale} ${scale} ${scale}`);
+        // Set a fixed scale for testing
+        const testScale = '10 10 10';
+        lostModel.setAttribute('scale', testScale);
+        console.log('Test Scale:', testScale);
 
         // Make sure the lost model is visible
         lostModel.setAttribute('visible', 'true');
-        console.log('Lost model visible');
+
+        // Debugging to ensure the model is correctly updated
+        const lostModelPosition = lostModel.getAttribute('position');
+        console.log('Lost Model Position:', lostModelPosition);
       });
     }
   });
@@ -229,7 +225,6 @@
   // Apply the keep-visible-on-lost component to the scene
   document.querySelector('a-scene').setAttribute('keep-visible-on-lost', '');
 </script>
-
 
 </body>
 </html>
