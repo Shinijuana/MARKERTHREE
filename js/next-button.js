@@ -52,7 +52,7 @@ AFRAME.registerComponent('next-button', {
       } = model;
 
       if (!isVisible) {
-        // Mostra i bottoni
+        // Mostra i bottoni e nasconde i balloon al primo click
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
@@ -70,7 +70,7 @@ AFRAME.registerComponent('next-button', {
           }
         });
       } else {
-        // Nascondi i bottoni
+        // Mostra i balloon e nasconde i bottoni al secondo click
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
