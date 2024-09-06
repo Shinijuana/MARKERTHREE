@@ -17,7 +17,7 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       console.log('Target perso');
 
       // Imposta la posizione e la rotazione del modello perso ai valori desiderati
-      const fixedPosition = { x: 0, y: -1000, z: -4500.345635017298 };
+      const fixedPosition = { x: 0, y: -1000, z: -5500.345635017298 };
       const fixedRotation = { x: 0, y: 0, z: 0 };
 
       lostModel.setAttribute('position', `${fixedPosition.x} ${fixedPosition.y} ${fixedPosition.z}`);
