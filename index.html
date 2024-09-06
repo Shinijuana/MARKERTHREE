@@ -40,6 +40,73 @@
 
     <!-- Configurazione della telecamera -->
     <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
+      <a-entity id="lost-model" scale="1000 1000 1000" position="0 0 -20" visible="false" class="clickable">
+      <a-entity
+        id="tracked-model"
+        rotation="0 0 0" 
+        position="0 0 0" 
+        scale="1 1 1" 
+        gltf-model="#busto"
+        class="clickable"
+        animation__move="property: position; from: 0 0.25 0; to: 0 0.45 0; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      </a-entity>
+      <a-entity
+      gltf-model="#web"
+      id="nextbutton"
+      position="-.2 .25 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#phone"
+      id="phoneButton"
+      position="0 1.25 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#mail"
+      id="emailButton"
+      position=".4 .25 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#vcf"
+      id="vcfButton"
+      position="0 -.8 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-plane
+      id="balloon-plane"
+      scale=".2 .2 .2"
+      rotation="0 0 0"
+      width="3"
+      height="1"
+      visible="true"
+      src="#balloonTexture"
+      material="transparent: true; opacity: 1; side: double;"
+      animation__move="property: position; from: -.3 .55 -.15; to: -.3 .8 -.15; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      <a-text
+        id="balloon-text"
+        rotation="0 0 0"
+        position="0 .15 .05"
+        typewriting="value: ."
+        align="center"
+        width="2.7"
+        color="#0000ff">
+      </a-text>
+    </a-plane>
+  </a-entity>
     <a-image
       id="startImage"
       src="assets/markerdos.jpg"
@@ -158,73 +225,7 @@
     </a-plane>
     </a-entity>
     
-  <a-entity id="lost-model" scale="2000 2000 2000" position="0 0 0" visible="false" class="clickable">
-      <a-entity
-        id="tracked-model"
-        rotation="0 0 0" 
-        position="0 0 0" 
-        scale="1 1 1" 
-        gltf-model="#busto"
-        class="clickable"
-        animation__move="property: position; from: 0 0.25 0; to: 0 0.45 0; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
-      </a-entity>
-      <a-entity
-      gltf-model="#web"
-      id="nextbutton"
-      position="-.2 .25 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#phone"
-      id="phoneButton"
-      position="0 1.25 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#mail"
-      id="emailButton"
-      position=".4 .25 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#vcf"
-      id="vcfButton"
-      position="0 -.8 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-plane
-      id="balloon-plane"
-      scale=".2 .2 .2"
-      rotation="0 0 0"
-      width="3"
-      height="1"
-      visible="true"
-      src="#balloonTexture"
-      material="transparent: true; opacity: 1; side: double;"
-      animation__move="property: position; from: -.3 .55 -.15; to: -.3 .8 -.15; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
-      <a-text
-        id="balloon-text"
-        rotation="0 0 0"
-        position="0 .15 .05"
-        typewriting="value: ."
-        align="center"
-        width="2.7"
-        color="#0000ff">
-      </a-text>
-    </a-plane>
-  </a-entity>
+  
 </a-scene>
 </body>
 </html>
