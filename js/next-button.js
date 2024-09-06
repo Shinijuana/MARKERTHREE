@@ -57,10 +57,8 @@ AFRAME.registerComponent('next-button', {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
         if (balloon) {
+          balloon.setAttribute('visible', 'true');
           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
-          setTimeout(() => {
-            balloon.setAttribute('visible', 'false');
-          }, 1000);
         }
         [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
           if (button) {
@@ -75,7 +73,6 @@ AFRAME.registerComponent('next-button', {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
         if (balloon) {
-          balloon.setAttribute('visible', 'true');
           balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
         }
         [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
