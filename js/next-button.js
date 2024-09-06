@@ -51,26 +51,26 @@ AFRAME.registerComponent('next-button', {
         balloon
       } = model;
 
-      // Funzione per determinare l'animazione di movimento per i bottoni
-      const getMoveAnimation = (buttonId, isVisible) => {
-        switch (buttonId) {
-          case 'phoneButton':
-            return isVisible
-              ? 'property: position; from: 0 0 0; to: 0 .8 0; dur: 1000; easing: linear'
-              : 'property: position; from: 0 .8 0; to: 0 0 0; dur: 1000; easing: linear';
-          case 'vcfButton':
-            return isVisible
-              ? 'property: position; from: 0 0 0; to: 0 -.8 0; dur: 1000; easing: linear'
-              : 'property: position; from: 0 -.8 0; to: 0 0 0; dur: 1000; easing: linear';
-          default:
-            return isVisible
-              ? `property: position; from: 0 0 0; to: ${buttonId === 'nextbutton' ? '-.8 0 .5' : buttonId === 'mailButton' ? '.8 0 .5' : '0 0 0'}; dur: 1000; easing: linear`
-              : `property: position; from: ${buttonId === 'nextbutton' ? '-.8 0 .5' : buttonId === 'mailButton' ? '.8 0 .5' : '0 0 0'}; to: 0 0 0; dur: 1000; easing: linear`;
-        }
-      };
-
       if (!isVisible) {
         // Mostra i bottoni
+        if (textElement) {
+          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
+        }
+        if (balloon) {
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
+          setTimeout(() => {
+            balloon.setAttribute('visible', 'false');
+          }, 1000);
+        }
+        [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
+          if (button) {
+            button.setAttribute('visible', 'true');
+            button.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
+            button.setAttribute('animation__move', `property: position; from: 0 0 0; to: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'emailButton' ? '.8 0 .5' : '0 0 -.5'}; dur: 1000; easing: linear`);
+          }
+        });
+      } else {
+        // Nascondi i bottoni
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
@@ -80,23 +80,8 @@ AFRAME.registerComponent('next-button', {
         }
         [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
           if (button) {
-            button.setAttribute('visible', 'true');
-            button.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
-            button.setAttribute('animation__move', getMoveAnimation(button.id, !isVisible));
-          }
-        });
-      } else {
-        // Nascondi i bottoni
-        if (textElement) {
-          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
-        }
-        if (balloon) {
-          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
-        }
-        [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
-          if (button) {
             button.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
-            button.setAttribute('animation__move', getMoveAnimation(button.id, !isVisible));
+            button.setAttribute('animation__move', `property: position; from: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'emailButton' ? '.8 0 .5' : '0 0 -.5'}; to: 0 0 0; dur: 1000; easing: linear`);
           }
         });
 
