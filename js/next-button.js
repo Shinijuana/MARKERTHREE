@@ -48,7 +48,6 @@ AFRAME.registerComponent('next-button', {
         mailButton,
         vcfButton,
         textElement,
-        balloon
       } = model;
 
       if (!isVisible) {
