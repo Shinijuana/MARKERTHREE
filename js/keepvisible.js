@@ -11,6 +11,13 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       return globalPos;
     }
 
+    // Funzione per convertire la scala locale in scala globale
+    function localToGlobalScale(el) {
+      const globalScale = new THREE.Vector3();
+      el.object3D.getWorldScale(globalScale);
+      return globalScale;
+    }
+
     // Eventi MindAR targetFound e targetLost
     sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
@@ -30,12 +37,14 @@ AFRAME.registerComponent('keep-visible-on-lost', {
         return;
       }
 
-      // Ottenere la posizione globale e la rotazione del modello tracciato
+      // Ottenere la posizione globale, la rotazione e la scala del modello tracciato
       const globalPosition = localToGlobal(trackedModel);
       const globalRotation = new THREE.Euler().setFromQuaternion(trackedModelObject.getWorldQuaternion(new THREE.Quaternion()));
+      const globalScale = localToGlobalScale(trackedModel);
 
       console.log('Global Position:', globalPosition);
       console.log('Global Rotation (radians):', globalRotation);
+      console.log('Global Scale:', globalScale);
 
       // Convertire la rotazione globale in gradi
       const rotationDegrees = {
@@ -45,22 +54,25 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       };
       console.log('Global Rotation (degrees):', rotationDegrees);
 
-      // Impostare la posizione e la rotazione del modello perso
+      // Impostare la posizione, rotazione e scala del modello perso
       lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
       lostModel.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
+      lostModel.setAttribute('scale', `${globalScale.x} ${globalScale.y} ${globalScale.z}`);
 
-      // Disattivare il comportamento che lega lostModel alla camera
+      // Aggiornare la matrice del lostModel manualmente per assicurare che resti fisso nel mondo
       lostModel.object3D.matrixAutoUpdate = false;
-
-      // Forzare la posizione nel mondo reale
       lostModel.object3D.updateMatrixWorld(true);
+
+      // Assicurarsi che il modello perso sia visibile
       lostModel.setAttribute('visible', 'true');
 
-      // Debugging per verificare se il modello è aggiornato correttamente
+      // Debugging per verificare che il modello sia aggiornato correttamente
       const lostModelPosition = lostModel.getAttribute('position');
       const lostModelRotation = lostModel.getAttribute('rotation');
+      const lostModelScale = lostModel.getAttribute('scale');
       console.log('Lost Model Position:', lostModelPosition);
       console.log('Lost Model Rotation:', lostModelRotation);
+      console.log('Lost Model Scale:', lostModelScale);
     });
   }
 });
