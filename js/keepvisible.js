@@ -45,9 +45,9 @@ AFRAME.registerComponent('keep-visible-on-lost', {
       };
       console.log('Global Rotation (degrees):', rotationDegrees);
 
-      // Set the lost model's position and rotation
-      lostModel.setAttribute('position', ${globalPosition.x} ${globalPosition.y} ${globalPosition.z});
-      lostModel.setAttribute('rotation', ${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z});
+      // Set the lost model's position and rotation using template literals
+      lostModel.setAttribute('position', `${globalPosition.x} ${globalPosition.y} ${globalPosition.z}`);
+      lostModel.setAttribute('rotation', `${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z}`);
 
       // Make sure the lost model is visible
       lostModel.setAttribute('visible', 'true');
