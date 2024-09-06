@@ -105,107 +105,160 @@ AFRAME.registerComponent('next-button', {
       }
     };
 
-    // Inizializza gli eventi per ar-target e lost-model
+    // Funzione per gestire il click su char
+    this.handleCharClick = function(model) {
+      const {
+        char,
+        nextButton,
+        phoneButton,
+        mailButton,
+        vcfButton,
+        textElement,
+        balloon
+      } = model;
+
+      let isVisible = char.getAttribute('data-visible') === 'true';
+      if (!isVisible) {
+        if (textElement) {
+          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
+        }
+        if (balloon) {
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
+          setTimeout(() => {
+            balloon.setAttribute('visible', 'false');
+          }, 1000);
+        }
+        [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
+          if (button) {
+            button.setAttribute('visible', 'true');
+            button.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
+            button.setAttribute('animation__move', `property: position; from: 0 0 0; to: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'emailButton' ? '.8 0 .5' : '0 0 -.5'}; dur: 1000; easing: linear`);
+          }
+        });
+        char.setAttribute('data-visible', 'true');
+      } else {
+        if (textElement) {
+          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
+        }
+        if (balloon) {
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
+        }
+        [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
+          if (button) {
+            button.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
+            button.setAttribute('animation__move', `property: position; from: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'emailButton' ? '.8 0 .5' : '0 0 -.5'}; to: 0 0 0; dur: 1000; easing: linear`);
+          }
+        });
+
+        setTimeout(() => {
+          [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
+            if (button) button.setAttribute('visible', 'false');
+          });
+        }, 1000);
+        char.setAttribute('data-visible', 'false');
+      }
+    };
+
+    // Funzione per gestire il click su closeButton
+    this.handleCloseButton = function(isBalloonVisible, model) {
+      const {
+        char,
+        textElement,
+        balloon,
+        nextButton,
+        phoneButton,
+        mailButton,
+        vcfButton,
+        finalpage,
+        refr,
+        download
+      } = model;
+
+      if (isBalloonVisible) {
+        textElement.setAttribute('typewriting', 'value: Bye Bye!');
+        if (refr) {
+          refr.onclick = () => {
+            window.location.reload();
+          };
+        }
+
+        if (download) {
+          download.onclick = () => {
+            const downloadUrl = 'https://drive.google.com/uc?export=download&id=1DqanjcQqU1FXM29gRwWMe5noW_TxAj2U';
+            window.open(downloadUrl, '_self');
+          };
+        }
+
+        // Animazioni alla chiusura
+        setTimeout(() => {
+          char.setAttribute('animation__pulse', 'property: scale; from: 1.5 1.5 1.5; to: 0 0 0; dir: alternate; dur: 1000');
+          char.setAttribute('animation__rotation', 'property: rotation; from: 90 0 0; to: 720 0 0; dir: alternate; dur: 1000');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: .35 .35 .35; to: 0 0 0; dir: alternate; dur: 1000');
+          if (nextButton) nextButton.setAttribute('visible', 'false');
+          if (phoneButton) phoneButton.setAttribute('visible', 'false');
+          if (mailButton) mailButton.setAttribute('visible', 'false');
+          if (vcfButton) vcfButton.setAttribute('visible', 'false');
+        }, 1000);
+
+        setTimeout(() => {
+          char.setAttribute('visible', 'false');
+          if (closeButton) closeButton.setAttribute('visible', 'false');
+          if (finalpage) finalpage.setAttribute('visible', 'true');
+          if (finalpage) finalpage.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 3.5 7 1; dir: alternate; dur: 100');
+          if (refr) refr.setAttribute('visible', 'true');
+          if (download) download.setAttribute('visible', 'true');
+          if (balloon) balloon.setAttribute('visible', 'false'); // Assicurati che il balloon venga nascosto dopo la chiusura
+        }, 2000);
+      } else {
+        if (balloon) {
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
+        }
+        if (textElement) {
+          textElement.setAttribute('typewriting', 'value: Bye Bye!');
+        }
+        if (refr) {
+          refr.onclick = () => {
+            window.location.reload();
+          };
+        }
+
+        if (download) {
+          download.onclick = () => {
+            const downloadUrl = 'https://drive.google.com/uc?export=download&id=1DqanjcQqU1FXM29gRwWMe5noW_TxAj2U';
+            window.open(downloadUrl, '_self');
+          };
+        }
+
+        // Animazioni alla chiusura
+        setTimeout(() => {
+          char.setAttribute('animation__pulse', 'property: scale; from: 1.5 1.5 1.5; to: 0 0 0; dir: alternate; dur: 1000');
+          char.setAttribute('animation__rotation', 'property: rotation; from: 90 0 0; to: 720 0 0; dir: alternate; dur: 1000');
+          nextButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
+          nextButton.setAttribute('animation__move', 'property: position; from:-.8 0 .5 ; to: 0 0 0; dur: 1000; easing: linear');
+          phoneButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
+          phoneButton.setAttribute('animation__move', 'property: position; from: 0 0 1.65 ; to: 0 0 0; dur: 1000; easing: linear');
+          mailButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
+          mailButton.setAttribute('animation__move', 'property: position; from:.8 0 .5 ; to: 0 0 0; dur: 1000; easing: linear');
+          vcfButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
+          vcfButton.setAttribute('animation__move', 'property: position; from:0 0 -.5 ; to: 0 0 0; dur: 1000; easing: linear');
+        }, 1000);
+
+        setTimeout(() => {
+          char.setAttribute('visible', 'false');
+          if (closeButton) closeButton.setAttribute('visible', 'false');
+          if (finalpage) finalpage.setAttribute('visible', 'true');
+          if (finalpage) finalpage.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 3.5 7 1; dir: alternate; dur: 100');
+          if (refr) refr.setAttribute('visible', 'true');
+          if (download) download.setAttribute('visible', 'true');
+          if (balloon) balloon.setAttribute('visible', 'false'); // Assicurati che il balloon venga nascosto dopo la chiusura
+        }, 2000);
+      }
+    };
+
+    // Inizializzazione degli eventi per entrambi i modelli
     initializeEvents(arTarget);
     initializeEvents(lostModel);
-  },
-
-  handleCharClick(model) {
-    const {
-      char,
-      nextButton,
-      phoneButton,
-      mailButton,
-      vcfButton,
-      textElement,
-      balloon
-    } = model;
-
-    let isVisible = false;
-    if (!isVisible) {
-      if (textElement) {
-        textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
-      }
-      if (balloon) {
-        balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
-        setTimeout(() => {
-          balloon.setAttribute('visible', 'false');
-        }, 1000);
-      }
-      [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
-        if (button) {
-          button.setAttribute('visible', 'true');
-          button.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
-          button.setAttribute('animation__move', `property: position; from: 0 0 0; to: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'emailButton' ? '.8 0 .5' : '0 0 -.5'}; dur: 1000; easing: linear`);
-        }
-      });
-      isVisible = true;
-    } else {
-      if (textElement) {
-        textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
-      }
-      if (balloon) {
-        balloon.setAttribute('visible', 'true');
-        balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
-      }
-      [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
-        if (button) {
-          button.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
-          button.setAttribute('animation__move', `property: position; from: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'emailButton' ? '.8 0 .5' : '0 0 -.5'}; to: 0 0 0; dur: 1000; easing: linear`);
-        }
-      });
-
-      setTimeout(() => {
-        [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
-          if (button) button.setAttribute('visible', 'false');
-        });
-      }, 1000);
-      isVisible = false;
-    }
-  },
-
-  handleCloseButton(isBalloonVisible, model) {
-    const {
-      char,
-      textElement,
-      balloon,
-      nextButton,
-      phoneButton,
-      mailButton,
-      vcfButton,
-      finalpage,
-      refr,
-      download
-    } = model;
-
-    if (isBalloonVisible) {
-      textElement.setAttribute('typewriting', 'value: Bye Bye!');
-      if (refr) {
-        refr.onclick = () => {
-          window.location.reload();
-        };
-      }
-
-      if (download) {
-        download.onclick = () => {
-          const downloadUrl = 'https://drive.google.com/uc?export=download&id=1DqanjcQqU1FXM29gRwWMe5noW_TxAj2U';
-          window.open(downloadUrl, '_self');
-        };
-      }
-
-      // Animazioni alla chiusura
-      setTimeout(() => {
-        char.setAttribute('animation__pulse', 'property: scale; from: 1.5 1.5 1.5; to: 0 0 0; dir: alternate; dur: 1000');
-        char.setAttribute('animation__rotation', 'property: rotation; from: 90 0 0; to: 720 0 0; dir: alternate; dur: 1000');
-      }, 500);
-      setTimeout(() => {
-        if (balloon) {
-          balloon.setAttribute('visible', 'false');
-        }
-        if (finalpage) {
-          finalpage.setAttribute('visible', 'true');
-        }
-      }, 1500);
-    }
   }
 });
