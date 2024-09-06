@@ -158,7 +158,73 @@
     </a-plane>
     </a-entity>
     
-  <a-entity id="lost-model" gltf-model="#busto" scale="2000 2000 2000" position="0 0 0" visible="false"></a-entity>
+  <a-entity id="lost-model" scale="2000 2000 2000" position="0 0 0" visible="false">
+      <a-entity
+        id="tracked-model"
+        rotation="90 0 0" 
+        position="0 0 0" 
+        scale="2 2 2" 
+        gltf-model="#busto"
+        class="clickable"
+        animation__move="property: position; from: 0 0 0.5; to: 0 0 .9; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      </a-entity>
+      <a-entity
+      gltf-model="#web"
+      id="nextbutton"
+      position="-.8 0 .5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#phone"
+      id="phoneButton"
+      position="0 0 2.5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#mail"
+      id="emailButton"
+      position=".8 0 .5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#vcf"
+      id="vcfButton"
+      position="0 0 -.1.5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-plane
+      id="balloon-plane"
+      scale=".35 .35 .35"
+      rotation="90 0 0"
+      width="3"
+      height="1"
+      visible="true"
+      src="#balloonTexture"
+      material="transparent: true; opacity: 1; side: double;"
+      animation__move="property: position; from: -.6 -.3 1.1; to: -.6 -.3 1.6; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      <a-text
+        id="balloon-text"
+        rotation="0 0 0"
+        position="0 .15 .05"
+        typewriting="value: ."
+        align="center"
+        width="2.7"
+        color="#0000ff">
+      </a-text>
+    </a-plane>
+  </a-entity>
 </a-scene>
 </body>
 </html>
