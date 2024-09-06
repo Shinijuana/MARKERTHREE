@@ -76,13 +76,13 @@ AFRAME.registerComponent('next-button', {
         }
         if (balloon) {
           balloon.setAttribute('visible', 'true');
-          balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
         }
         [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
           if (button) {
             button.setAttribute('visible', 'true');
             button.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
-            button.setAttribute('animation__move', getMoveAnimation(button.id, isVisible));
+            button.setAttribute('animation__move', getMoveAnimation(button.id, !isVisible));
           }
         });
       } else {
@@ -96,7 +96,7 @@ AFRAME.registerComponent('next-button', {
         [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
           if (button) {
             button.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
-            button.setAttribute('animation__move', getMoveAnimation(button.id, isVisible));
+            button.setAttribute('animation__move', getMoveAnimation(button.id, !isVisible));
           }
         });
 
