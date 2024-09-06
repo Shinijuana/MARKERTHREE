@@ -4,25 +4,61 @@ AFRAME.registerComponent('keep-visible-on-lost', {
     const trackedModel = document.querySelector('#tracked-model');  // The model inside the AR target
     const lostModel = document.querySelector('#lost-model');  // The free model
 
+    // Helper function to convert local position to global
+    function localToGlobal(el) {
+      const globalPos = new THREE.Vector3();
+      el.object3D.getWorldPosition(globalPos);
+      return globalPos;
+    }
+
     // Listen for MindAR targetFound and targetLost events
     sceneEl.addEventListener('targetFound', () => {
       console.log('Target found');
       const startImage = document.getElementById('startImage');
-      startImage.setAttribute('visible', 'false');  // Hide start image
-      trackedModel.setAttribute('visible', 'true');  // Show tracked model
-      lostModel.setAttribute('visible', 'false');    // Hide lost model
+      startImage.setAttribute('visible', 'false');
+      trackedModel.setAttribute('visible', 'true');
+      lostModel.setAttribute('visible', 'false');
     });
 
     sceneEl.addEventListener('targetLost', () => {
       console.log('Target lost');
-      
-      // Simply manage the visibility: hide tracked model, show lost model
-      trackedModel.setAttribute('visible', 'false');  // Hide tracked model
-      lostModel.setAttribute('visible', 'true');      // Show lost model
 
-      // Debugging to check visibility state
-      console.log('Tracked Model Visible:', trackedModel.getAttribute('visible'));
-      console.log('Lost Model Visible:', lostModel.getAttribute('visible'));
+      // Ensure trackedModel object3D is available
+      const trackedModelObject = trackedModel.object3D;
+      if (!trackedModelObject) {
+        console.error('trackedModel.object3D is not available');
+        return;
+      }
+
+      // Get the global position and rotation of the tracked model
+      const globalPosition = localToGlobal(trackedModel);
+      const globalRotation = new THREE.Euler().setFromQuaternion(trackedModelObject.getWorldQuaternion(new THREE.Quaternion()));
+
+      console.log('Global Position:', globalPosition);
+      console.log('Global Rotation (radians):', globalRotation);
+
+      // Convert global rotation to degrees
+      const rotationDegrees = {
+        x: THREE.MathUtils.radToDeg(globalRotation.x),
+        y: THREE.MathUtils.radToDeg(globalRotation.y),
+        z: THREE.MathUtils.radToDeg(globalRotation.z)
+      };
+      console.log('Global Rotation (degrees):', rotationDegrees);
+
+      // Set the lost model's position and rotation using template literals
+      lostModel.setAttribute('position', ${globalPosition.x} ${globalPosition.y} ${globalPosition.z});
+      lostModel.setAttribute('rotation', ${rotationDegrees.x} ${rotationDegrees.y} ${rotationDegrees.z});
+
+      // Make sure the lost model is visible
+      lostModel.setAttribute('visible', 'true');
+
+      // Debugging to ensure the model is correctly updated
+      const lostModelPosition = lostModel.getAttribute('position');
+      const lostModelRotation = lostModel.getAttribute('rotation');
+      const lostModelScale = lostModel.getAttribute('scale');
+      console.log('Lost Model Position:', lostModelPosition);
+      console.log('Lost Model Rotation:', lostModelRotation);
+      console.log('Lost Model Scale:', lostModelScale);
     });
   }
 });
