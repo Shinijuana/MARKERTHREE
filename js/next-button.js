@@ -51,7 +51,23 @@ AFRAME.registerComponent('next-button', {
         balloon
       } = model;
 
-      const defaultMoveAnimation = `property: position; from: 0 0 0; to: ${button.id === 'nextbutton' ? '-.8 0 .5' : button.id === 'mailButton' ? '.8 0 .5' : button.id === 'phoneButton' ? '0 0 1.65' : button.id === 'vcfButton' ? '0 0 -.5' : '0 0 0'}; dur: 1000; easing: linear`;
+      // Funzione per determinare l'animazione di movimento per i bottoni
+      const getMoveAnimation = (buttonId, isVisible) => {
+        switch (buttonId) {
+          case 'phoneButton':
+            return isVisible
+              ? 'property: position; from: 0 0 0; to: 0 .8 0; dur: 1000; easing: linear'
+              : 'property: position; from: 0 .8 0; to: 0 0 0; dur: 1000; easing: linear';
+          case 'vcfButton':
+            return isVisible
+              ? 'property: position; from: 0 0 0; to: 0 -.8 0; dur: 1000; easing: linear'
+              : 'property: position; from: 0 -.8 0; to: 0 0 0; dur: 1000; easing: linear';
+          default:
+            return isVisible
+              ? `property: position; from: 0 0 0; to: ${buttonId === 'nextbutton' ? '-.8 0 .5' : buttonId === 'mailButton' ? '.8 0 .5' : '0 0 0'}; dur: 1000; easing: linear`
+              : `property: position; from: ${buttonId === 'nextbutton' ? '-.8 0 .5' : buttonId === 'mailButton' ? '.8 0 .5' : '0 0 0'}; to: 0 0 0; dur: 1000; easing: linear`;
+        }
+      };
 
       if (!isVisible) {
         // Mostra i bottoni
@@ -66,11 +82,7 @@ AFRAME.registerComponent('next-button', {
           if (button) {
             button.setAttribute('visible', 'true');
             button.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
-            let moveAnimation = defaultMoveAnimation;
-            if (button.id === 'phoneButton' || button.id === 'vcfButton') {
-              moveAnimation = `property: position; from: 0 0 0; to: ${button.id === 'phoneButton' ? '0 .8 0' : '0 -.8 0'}; dur: 1000; easing: linear`;
-            }
-            button.setAttribute('animation__move', moveAnimation);
+            button.setAttribute('animation__move', getMoveAnimation(button.id, isVisible));
           }
         });
       } else {
@@ -84,11 +96,7 @@ AFRAME.registerComponent('next-button', {
         [nextButton, phoneButton, mailButton, vcfButton].forEach((button) => {
           if (button) {
             button.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
-            let moveAnimation = defaultMoveAnimation;
-            if (button.id === 'phoneButton' || button.id === 'vcfButton') {
-              moveAnimation = `property: position; from: ${button.id === 'phoneButton' ? '0 .8 0' : '0 -.8 0'}; to: 0 0 0; dur: 1000; easing: linear`;
-            }
-            button.setAttribute('animation__move', moveAnimation);
+            button.setAttribute('animation__move', getMoveAnimation(button.id, isVisible));
           }
         });
 
