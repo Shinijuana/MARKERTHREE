@@ -76,7 +76,7 @@ AFRAME.registerComponent('next-button', {
           if (phoneButton) {
             phoneButton.setAttribute('visible', 'true');
             phoneButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
-            phoneButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 0 2; dur: 1000; easing: linear');
+            phoneButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 0 2.2; dur: 1000; easing: linear');
           }
           if (mailButton) {
             mailButton.setAttribute('visible', 'true');
@@ -100,7 +100,7 @@ AFRAME.registerComponent('next-button', {
           if (phoneButton) {
             phoneButton.setAttribute('visible', 'true');
             phoneButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: .5 .5 .5; dir: alternate; dur: 1000');
-            phoneButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 1 0; dur: 1000; easing: linear');
+            phoneButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 1.15 0; dur: 1000; easing: linear');
           }
           if (mailButton) {
             mailButton.setAttribute('visible', 'true');
@@ -131,7 +131,7 @@ AFRAME.registerComponent('next-button', {
           }
           if (phoneButton) {
             phoneButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
-            phoneButton.setAttribute('animation__move', 'property: position; from: 0 0 2; to: 0 0 0; dur: 1000; easing: linear');
+            phoneButton.setAttribute('animation__move', 'property: position; from: 0 0 2.2; to: 0 0 0; dur: 1000; easing: linear');
           }
           if (mailButton) {
             mailButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
@@ -151,7 +151,7 @@ AFRAME.registerComponent('next-button', {
           }
           if (phoneButton) {
             phoneButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
-            phoneButton.setAttribute('animation__move', 'property: position; from: 0 1 0; to: 0 .5 0; dur: 1000; easing: linear');
+            phoneButton.setAttribute('animation__move', 'property: position; from: 0 1.15 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
           if (mailButton) {
             mailButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
