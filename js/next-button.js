@@ -100,7 +100,7 @@ AFRAME.registerComponent('next-button', {
           if (phoneButton) {
             phoneButton.setAttribute('visible', 'true');
             phoneButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: .5 .5 .5; dir: alternate; dur: 1000');
-            phoneButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 1.3 0; dur: 1000; easing: linear');
+            phoneButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 1 0; dur: 1000; easing: linear');
           }
           if (mailButton) {
             mailButton.setAttribute('visible', 'true');
@@ -147,19 +147,19 @@ AFRAME.registerComponent('next-button', {
         if (isLostModel) {
           if (nextButton) {
             nextButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
-            nextButton.setAttribute('animation__move', 'property: position; from: -.5 0 .8; to: 0 0 0; dur: 1000; easing: linear');
+            nextButton.setAttribute('animation__move', 'property: position; from: -.5 .5 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
           if (phoneButton) {
             phoneButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
-            phoneButton.setAttribute('animation__move', 'property: position; from: 0 0 1.8; to: 0 0 0; dur: 1000; easing: linear');
+            phoneButton.setAttribute('animation__move', 'property: position; from: 0 1 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
           if (mailButton) {
             mailButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
-            mailButton.setAttribute('animation__move', 'property: position; from: .5 0 .8; to: 0 0 0; dur: 1000; easing: linear');
+            mailButton.setAttribute('animation__move', 'property: position; from: .5 .5 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
           if (vcfButton) {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
-            vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 -.8; to: 0 0 0; dur: 1000; easing: linear');
+            vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
         }
       }
