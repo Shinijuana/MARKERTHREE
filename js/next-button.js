@@ -59,12 +59,12 @@ AFRAME.registerComponent('next-button', {
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
-        if (balloon) {
+       
           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
           setTimeout(() => {
             balloon.setAttribute('visible', 'false');
           }, 1000);
-        }
+        
 
         // Animazioni di apertura specifiche per arTarget
         if (!isLostModel) {
