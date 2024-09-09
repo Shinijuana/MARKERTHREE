@@ -122,9 +122,6 @@ AFRAME.registerComponent('next-button', {
           if (!isLostModel) {
             balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
             balloon.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 0 1; dur: 1000; easing: linear');
-          } else {
-            balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.25 0.25 0.25; dir: alternate; dur: 1000');
-            balloon.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 0 1; dur: 1000; easing: linear');
           }
         }
 
