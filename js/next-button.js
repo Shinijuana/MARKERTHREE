@@ -119,11 +119,10 @@ AFRAME.registerComponent('next-button', {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
         if (balloon) {
-          if (!isLostModel) {
-            balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
-            balloon.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 0 1; dur: 1000; easing: linear');
-          }
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
         }
+        
 
         // Animazioni di chiusura per arTarget
         if (!isLostModel) {
@@ -294,4 +293,4 @@ AFRAME.registerComponent('next-button', {
       }, 1500);
     }
   }
-});
+})
