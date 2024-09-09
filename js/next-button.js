@@ -30,7 +30,6 @@ AFRAME.registerComponent('next-button', {
       download: document.querySelector('#lost-model #down')
     };
 
-    const balloon2 = document.querySelector('#lost-model #balloon-plane2');
     // Variabile per tenere traccia dello stato di visibilità dei bottoni
     this.isVisible = false;
 
@@ -60,14 +59,12 @@ AFRAME.registerComponent('next-button', {
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
-       
+        if (balloon) {
           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
-          balloon2.setAttribute('animation__pulse', 'property: scale; from: 0.2 0.2 0.2; to: 0 0 0; dir: alternate; dur: 1000');
           setTimeout(() => {
             balloon.setAttribute('visible', 'false');
-            balloon2.setAttribute('visible', 'false');
           }, 1000);
-        
+        }
 
         // Animazioni di apertura specifiche per arTarget
         if (!isLostModel) {
@@ -125,8 +122,6 @@ AFRAME.registerComponent('next-button', {
           balloon.setAttribute('visible', 'true');
           balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
         }
-        balloon2.setAttribute('visible', 'true');
-          balloon2.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.2 0.2 0.2; dir: alternate; dur: 1000');
         
 
         // Animazioni di chiusura per arTarget
