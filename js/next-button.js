@@ -31,7 +31,7 @@ AFRAME.registerComponent('next-button', {
     };
 
     // Variabile per tenere traccia dello stato di visibilità dei bottoni
-    this.isVisible = false;
+    this.isVisible = true;
 
     // Funzione per sincronizzare gli eventi tra i due modelli
     const synchronizeModels = (isVisible) => {
@@ -247,7 +247,7 @@ AFRAME.registerComponent('next-button', {
       if (char) {
         char.onclick = () => {
           
-          !this.isVisible = this.isVisible; // Toggle visibilità
+          this.isVisible = !this.isVisible; // Toggle visibilità
           synchronizeModels(this.isVisible); // Sincronizza entrambi i modelli
         };
       }
