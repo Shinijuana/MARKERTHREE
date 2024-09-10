@@ -115,7 +115,7 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: .5 .5 .5; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 0 0; dur: 1000; easing: linear');
           }
-           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.55 0.22 0.22; to: 0 0 0; dir: alternate; dur: 1000');
+           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.22 0.22 0.22; to: 0 0 0; dir: alternate; dur: 1000');
           setTimeout(() => {
             balloon.setAttribute('visible', 'false');
           }, 1000);
@@ -169,7 +169,7 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
           balloon.setAttribute('visible', 'true');
-          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.5 0.22 0.22; dir: alternate; dur: 1000');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.22 0.22 0.22; dir: alternate; dur: 1000');
         }
       }
     };
