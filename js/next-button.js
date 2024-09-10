@@ -9,7 +9,10 @@ AFRAME.registerComponent('next-button', {
       vcfButton: document.getElementById('vcfButton'),
       textElement: document.querySelector('#balloon-text'),
       balloon: document.getElementById('balloon-plane'),
-      
+      closeButton : document.getElementById('closeButton'),
+      finalpage : document.getElementById('finalp'),
+      refr : document.getElementById('reload'),
+      download : document.getElementById('down')
     };
 
     // Dichiarazione delle costanti per lost-model
@@ -21,16 +24,16 @@ AFRAME.registerComponent('next-button', {
       vcfButton: document.querySelector('#lost-model #vcfButton'),
       textElement: document.querySelector('#lost-model #balloon-text'),
       balloon: document.querySelector('#lost-model #balloon-plane'),
-   
+      closeButton : document.getElementById('closeButton'),
+      finalpage : document.getElementById('finalp'),
+      refr : document.getElementById('reload'),
+      download : document.getElementById('down')
     };
 
 
     const tar = document.getElementById('ar-target');
     const lost = document.getElementById('lost-model');
-    const closeButton = document.getElementById('closeButton'),
-    const finalpage = document.getElementById('finalp'),
-    const refr = document.getElementById('reload'),
-    const download = document.getElementById('down')
+    
     // Variabile per tenere traccia dello stato di visibilità dei bottoni
     this.isVisible = true;
 
