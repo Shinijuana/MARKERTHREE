@@ -59,12 +59,7 @@ AFRAME.registerComponent('next-button', {
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
-        if (balloon) {
-          balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
-          setTimeout(() => {
-            balloon.setAttribute('visible', 'false');
-          }, 1000);
-        }
+       
 
         // Animazioni di apertura specifiche per arTarget
         if (!isLostModel) {
@@ -116,7 +111,7 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: .5 .5 .5; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 0 0; dur: 1000; easing: linear');
           }
-           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
+           balloon.setAttribute('animation__pulse', 'property: scale; from: 0.2 0.2 0.2; to: 0 0 0; dir: alternate; dur: 1000');
           setTimeout(() => {
             balloon.setAttribute('visible', 'false');
           }, 1000);
@@ -126,10 +121,7 @@ AFRAME.registerComponent('next-button', {
         if (textElement) {
           textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
-        if (balloon) {
-          balloon.setAttribute('visible', 'true');
-          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
-        }
+       
         
 
         // Animazioni di chiusura per arTarget
@@ -150,6 +142,8 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 -.5; to: 0 0 0; dur: 1000; easing: linear');
           }
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
         }
 
         // Animazioni di chiusura per lostModel
@@ -170,6 +164,8 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.2 0.2 0.2; dir: alternate; dur: 1000');
         }
       }
     };
