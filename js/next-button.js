@@ -247,7 +247,7 @@ AFRAME.registerComponent('next-button', {
       if (char) {
         char.onclick = () => {
           
-          this.isVisible = !this.isVisible; // Toggle visibilità
+          !this.isVisible = this.isVisible; // Toggle visibilità
           synchronizeModels(this.isVisible); // Sincronizza entrambi i modelli
         };
       }
