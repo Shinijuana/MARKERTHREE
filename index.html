@@ -28,6 +28,7 @@
     <script src="js/ending.js"></script>
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
+    <script src="js/opencv.js"></script>
 </head>
 <body>
   <!-- Overlay di scansione per il tracciamento dell'image target -->
@@ -36,6 +37,7 @@
   <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/dos.mind; filterMinCF:0.001; filterBeta: 1000; warmupTolerance: 5; missTolerance: 5;" 
            keep-visible-on-lost
            ending
+           tensorflow-contour-processor
            typewriting
            next-button
            color-space="sRGB" 
