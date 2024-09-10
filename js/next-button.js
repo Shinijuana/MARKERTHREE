@@ -30,6 +30,10 @@ AFRAME.registerComponent('next-button', {
       download: document.querySelector('#lost-model #down')
     };
 
+
+    const tar = document.getElementById('ar-target');
+    const lost = document.getElementById('lost-model');
+    
     // Variabile per tenere traccia dello stato di visibilità dei bottoni
     this.isVisible = true;
 
@@ -236,8 +240,7 @@ AFRAME.registerComponent('next-button', {
         closeButton.onclick = () => {
           const isBalloonVisible = balloon && balloon.getAttribute('visible') === 'true';
           this.handleCloseButton(isBalloonVisible, model);
-          const tar = document.getElementById('ar-target');
-          const lost = document.getElementById('lost-model');
+          
           finalpage.setAttribute('visible', 'true');
           refr.setAttribute('visible', 'true');
           download.setAttribute('visible', 'true');
