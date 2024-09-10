@@ -223,13 +223,16 @@
       class="clickable"
       visible="false">
     </a-entity>
-    <a-image
+    <a-plane
       id="balloon-plane"
-      scale=".55 .22 .22"
-      rotation="0 0 0"
+      scale=".22 .22 .22"
+      rotation="90 0 0"
+      width="3"
+      height="1"
       visible="true"
-      src="assets/balloon.png"
-      animation__move="property: position; from: -.45 .7 -.15; to: -.45 .9 -.15; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      src="#balloonTexture"
+      material="transparent: true; opacity: 1; side: double;"
+      animation__move="property: position; from: -.75 -.3 1.1; to: -.75 -.3 1.6; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
       <a-text
         id="balloon-text"
         rotation="0 0 0"
@@ -241,7 +244,7 @@
         color="#0000ff"
         material="transparent: false;">
       </a-text>
-    </a-image>
+    </a-planee>
   </a-entity>
   
 </a-scene>
