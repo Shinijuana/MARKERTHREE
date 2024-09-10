@@ -1,6 +1,3 @@
-
-Hai detto:
-
 AFRAME.registerComponent('next-button', {
   init() {
     // Dichiarazione delle costanti per ar-target
@@ -91,7 +88,11 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 1 1 1; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 0 -.5; dur: 1000; easing: linear');
           }
+          if (balloon) {
+          balloon.setAttribute('visible', 'false');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
         }
+      } 
 
         // Animazioni di apertura specifiche per lostModel
         if (isLostModel) {
@@ -115,18 +116,12 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: .5 .5 .5; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 .5 0; to: 0 0 0; dur: 1000; easing: linear');
           }
+          if (balloon) {
+          balloon.setAttribute('visible', 'false');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0.35 0.35 0.35; to: 0 0 0; dir: alternate; dur: 1000');
         }
-      } else {
-        // Mostra i balloon e nasconde i bottoni al secondo click
-        if (textElement) {
-          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
-        if (balloon) {
-          balloon.setAttribute('visible', 'true');
-          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
-        }
-        
-
+      } 
         // Animazioni di chiusura per arTarget
         if (!isLostModel) {
           if (nextButton) {
@@ -145,7 +140,14 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: 1 1 1; to: 0 0 0; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 -.5; to: 0 0 0; dur: 1000; easing: linear');
           }
+          if (textElement) {
+          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
         }
+          if (balloon) {
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
+        }
+      }
 
         // Animazioni di chiusura per lostModel
         if (isLostModel) {
@@ -165,6 +167,13 @@ AFRAME.registerComponent('next-button', {
             vcfButton.setAttribute('animation__pulse', 'property: scale; from: .5 .5 .5; to: 0 0 0; dir: alternate; dur: 1000');
             vcfButton.setAttribute('animation__move', 'property: position; from: 0 0 0; to: 0 .5 0; dur: 1000; easing: linear');
           }
+          if (textElement) {
+          textElement.setAttribute('typewriting', 'value: Hello, I\'m Emilio Lonardo, Ceo & Co-Founder of D.O.S.. Tap for more!');
+        }
+          if (balloon) {
+          balloon.setAttribute('visible', 'true');
+          balloon.setAttribute('animation__pulse', 'property: scale; from: 0 0 0; to: 0.35 0.35 0.35; dir: alternate; dur: 1000');
+        }
         }
       }
     };
