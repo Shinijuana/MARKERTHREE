@@ -236,6 +236,10 @@ AFRAME.registerComponent('next-button', {
         closeButton.onclick = () => {
           const isBalloonVisible = balloon && balloon.getAttribute('visible') === 'true';
           this.handleCloseButton(isBalloonVisible, model);
+          finalpage.setAttribute('visible', 'true');
+          refr.setAttribute('visible', 'true');
+          download.setAttribute('visible', 'true');
+          closeButton.setAttribute('visible', 'false');
         };
       }
 
