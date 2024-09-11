@@ -38,7 +38,6 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
     document.body.appendChild(video);
 
     const canvas = document.createElement('canvas');
-    document.body.appendChild(canvas);
     const ctx = canvas.getContext('2d');
 
     console.log('Initializing webcam...');
@@ -55,17 +54,25 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
           const processFrame = () => {
             ctx.drawImage(video, 0, 0);
             const src = cv.imread(canvas);
-            const dst = new cv.Mat();
+            const edges = new cv.Mat();
+
+            // Convert to grayscale
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
-            cv.Canny(src, dst, 50, 100);
-            cv.imshow(canvas, dst);
+
+            // Apply Canny edge detection
+            cv.Canny(src, edges, 50, 100);
+
+            // Do not display the edges on the canvas
+            // cv.imshow(canvas, edges); // Comment this line to disable visual feedback
+
+            // You can add additional logic here if needed to use the edge data
+            // For example, process edges for further use or analysis
 
             console.log('Frame processed.');
-            console.log('Source matrix shape:', src.rows, src.cols);
-            console.log('Destination matrix shape:', dst.rows, dst.cols);
+            console.log('Edges matrix shape:', edges.rows, edges.cols);
 
             src.delete();
-            dst.delete();
+            edges.delete();
             requestAnimationFrame(processFrame);
           };
           requestAnimationFrame(processFrame);
