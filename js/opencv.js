@@ -56,24 +56,16 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
             ctx.drawImage(video, 0, 0);
             const src = cv.imread(canvas);
             const dst = new cv.Mat();
-            const edges = new cv.Mat();
-
-            // Convert to grayscale
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
-
-            // Apply Canny edge detection
-            cv.Canny(src, edges, 50, 100);
-
-            // Draw the edges on the canvas
-            cv.imshow(canvas, edges);
+            cv.Canny(src, dst, 50, 100);
+            cv.imshow(canvas, dst);
 
             console.log('Frame processed.');
             console.log('Source matrix shape:', src.rows, src.cols);
-            console.log('Edges matrix shape:', edges.rows, edges.cols);
+            console.log('Destination matrix shape:', dst.rows, dst.cols);
 
-            // Clean up
             src.delete();
-            edges.delete();
+            dst.delete();
             requestAnimationFrame(processFrame);
           };
           requestAnimationFrame(processFrame);
