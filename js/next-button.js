@@ -242,8 +242,11 @@ AFRAME.registerComponent('next-button', {
           this.handleCloseButton(isBalloonVisible, model);
           
           finalpage.setAttribute('visible', 'true');
+          finalpage.setAttribute('scale', '6 12 2')
           refr.setAttribute('visible', 'true');
+          refr.setAttribute('scale', '1 1 1')
           download.setAttribute('visible', 'true');
+          download.setAttribute('scale', '.8 .8 .8')
           closeButton.setAttribute('visible', 'false');
           tar.setAttribute('visible', 'false');
           lost.setAttribute('visible', 'false');
