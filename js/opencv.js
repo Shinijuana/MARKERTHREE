@@ -1,6 +1,6 @@
 AFRAME.registerComponent('tensorflow-contour-processor', {
   schema: {
-    targetName: {type: 'string'},
+    targetName: { type: 'string' },
   },
 
   init() {
@@ -8,22 +8,13 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
   },
 
   loadOpenCV() {
-    console.log('Loading OpenCV.js...');
-
     if (!window.cv) {
       const opencvScript = document.createElement('script');
       opencvScript.src = 'https://docs.opencv.org/master/opencv.js';
       opencvScript.async = true;
-      opencvScript.onload = () => {
-        console.log('OpenCV.js script loaded.');
-        this.onOpenCvReady();
-      };
-      opencvScript.onerror = () => {
-        console.error('Failed to load OpenCV.js script.');
-      };
+      opencvScript.onload = () => this.onOpenCvReady();
       document.head.appendChild(opencvScript);
     } else {
-      console.log('OpenCV.js is already loaded.');
       this.onOpenCvReady();
     }
   },
@@ -40,47 +31,48 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    console.log('Initializing webcam...');
-
-    navigator.mediaDevices.getUserMedia({video: true})
+    navigator.mediaDevices.getUserMedia({ video: true })
       .then((stream) => {
         video.srcObject = stream;
         video.onloadedmetadata = () => {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
 
-          console.log('Webcam initialized. Video dimensions:', video.videoWidth, video.videoHeight);
-
           const processFrame = () => {
             ctx.drawImage(video, 0, 0);
             const src = cv.imread(canvas);
             const edges = new cv.Mat();
 
-            // Convert to grayscale
             cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
+            cv.Canny(src, edges, 50, 150);
 
-            // Apply Canny edge detection
-            cv.Canny(src, edges, 50, 100);
+            const contours = new cv.MatVector();
+            const hierarchy = new cv.Mat();
+            cv.findContours(edges, contours, hierarchy, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE);
 
-            // Do not display the edges on the canvas
-            // cv.imshow(canvas, edges); // Comment this line to disable visual feedback
+            for (let i = 0; i < contours.size(); i++) {
+              const contour = contours.get(i);
+              const approx = new cv.Mat();
+              cv.approxPolyDP(contour, approx, 3, true);
 
-            // You can add additional logic here if needed to use the edge data
-            // For example, process edges for further use or analysis
+              const boundingRect = cv.boundingRect(approx);
+              cv.rectangle(src, boundingRect, [255, 0, 0, 255], 2);
+              approx.delete();
+            }
 
-            console.log('Frame processed.');
-            console.log('Edges matrix shape:', edges.rows, edges.cols);
-
+            cv.imshow(canvas, src);
             src.delete();
             edges.delete();
+            contours.delete();
+            hierarchy.delete();
+
             requestAnimationFrame(processFrame);
           };
+
           requestAnimationFrame(processFrame);
         };
       })
-      .catch((err) => {
-        console.error('Error accessing webcam:', err);
-      });
+      .catch((err) => console.error('Error accessing webcam:', err));
   },
 
   remove() {
@@ -88,9 +80,7 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
     const canvas = document.querySelector('canvas');
 
     if (video) {
-      if (!video.paused) {
-        video.pause();
-      }
+      video.pause();
       if (video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop());
       }
@@ -100,7 +90,5 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
     if (canvas) {
       document.body.removeChild(canvas);
     }
-
-    console.log('Cleanup complete.');
   },
 });
