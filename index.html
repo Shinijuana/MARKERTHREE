@@ -3,8 +3,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/objectron@0.3"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
     <style>
       /* Assicurati che tutto lo schermo sia occupato senza margini */
       html, body {
@@ -29,11 +27,16 @@
     <script src="js/ending.js"></script>
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
-  </head>
-  <body>
-    <!-- Configurazione di A-Frame con MindAR -->
-    <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/DOS3.mind; filterMinCF: 0.01; filterBeta: 100; warmupTolerance: 3; missTolerance: 5;" 
+   
+    
+</head>
+<body>
+  <!-- Overlay di scansione per il tracciamento dell'image target -->
+
+  <!-- Configurazione di A-Frame con MindAR -->
+  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/DOS3.mind; filterMinCF: 0.01; filterBeta: 100; warmupTolerance: 3; missTolerance: 5;" 
              keep-visible-on-lost
+             
              ending
              typewriting
              next-button
@@ -42,75 +45,209 @@
              vr-mode-ui="enabled: false" 
              embedded
              device-orientation-permission-ui="enabled: false">
+    
+    <!-- Caricamento degli asset -->
+    <a-assets>
+      <a-asset-item id="busto" src="https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf"></a-asset-item>
+      <a-asset-item id="web" src="assets/web.glb"></a-asset-item>
+      <a-asset-item id="phone" src="assets/phone.glb"></a-asset-item>
+      <a-asset-item id="mail" src="assets/mail.glb"></a-asset-item>
+      <a-asset-item id="vcf" src="assets/vcf.glb"></a-asset-item>
+      <img id="balloonTexture" src="assets/balloon.png" />
+    </a-assets>
 
-      <!-- Caricamento degli asset -->
-      <a-assets>
-        <a-asset-item id="busto" src="https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf"></a-asset-item>
-        <a-asset-item id="web" src="assets/web.glb"></a-asset-item>
-        <a-asset-item id="phone" src="assets/phone.glb"></a-asset-item>
-        <a-asset-item id="mail" src="assets/mail.glb"></a-asset-item>
-        <a-asset-item id="vcf" src="assets/vcf.glb"></a-asset-item>
-        <img id="balloonTexture" src="assets/balloon.png" />
-      </a-assets>
-
-      <!-- Configurazione della telecamera -->
-      <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
-        <a-image id="startImage" src="assets/markerdos.jpg" position="0 0 -15" scale="10 7 10" opacity=".8" visible="true"></a-image>
-        <a-image id="finalp" src="assets/final.png" position="0 .2 -11" scale="0 0 0" opacity="1" visible="false"></a-image>
-        <a-image id="reload" src="assets/reload.png" position="0 2 -10" scale="0 0 0" opacity="1" class="clickable" visible="false"></a-image>
-        <a-image id="down" src="assets/vcf3.png" position="0 -2 -10" scale="0 0 0" opacity="1" class="clickable" visible="false"></a-image>
-        <a-image id="closeButton" src="assets/close.png" position="1.5 3.5 -10" scale=".5 .5 .5" opacity="1" class="clickable" visible="true"></a-image>
-      </a-camera>
+    <!-- Configurazione della telecamera -->
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
       
-      <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
-      <a-light type="ambient" intensity="0.7"></a-light>
-   
-      <!-- Entità per il target AR e il modello 3D -->
-      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1">
-        <a-entity id="tracked-model" rotation="90 0 0" position="0 0 0" scale="2 2 2" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
-        <a-entity gltf-model="#web" id="nextbutton" position="-.8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
-        <a-entity gltf-model="#phone" id="phoneButton" position="0 0 2.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
-        <a-entity gltf-model="#mail" id="emailButton" position=".8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
-        <a-entity gltf-model="#vcf" id="vcfButton" position="0 0 -.1.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
-        <a-plane id="balloon-plane" scale=".35 .35 .35" rotation="90 0 0" width="3" height="1" visible="true" src="#balloonTexture" material="transparent: true; opacity: 1; side: double;" animation__move="property: position; from: -.75 -.3 1.1; to: -.75 -.3 1.6; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
-          <a-text id="balloon-text" rotation="0 0 0" position="0 .15 .05" typewriting="value: ." align="center" width="2.7" color="#0000ff" material="transparent: false;"></a-text>
-        </a-plane>
+    <a-image
+      id="startImage"
+      src="assets/markerdos.jpg"
+      position="0 0 -15"
+      scale="10 7 10"
+      opacity=".8"
+      visible="true"
+      animation__pulse="property: scale; from: 4 4 4; to: 4.5 4.5 4.5; dir: alternate; loop: true; dur: 1000">
+    </a-image>
+    <a-image
+      id="finalp"
+      src="assets/final.png"
+      position="0 .2 -11"
+      scale="0 0 0"
+      opacity="1"
+      visible="false">
+    </a-image>
+    <a-image
+      id="reload"
+      src="assets/reload.png"
+      position="0 2 -10"
+      scale="0 0 0"
+      opacity="1"
+      class="clickable"
+      visible="false">
+    </a-image>
+    <a-image
+      id="down"
+      src="assets/vcf3.png"
+      position="0 -2 -10"
+      scale="0 0 0"
+      opacity="1"
+      class="clickable"
+      visible="false">
+    </a-image>
+    <a-image
+      id="closeButton"
+      src="assets/close.png"
+      position="1.5 3.5 -10"
+      scale=".5 .5 .5"
+      opacity="1"
+      class="clickable"
+      visible="true">
+    </a-image>
+    </a-camera>
+    
+    <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
+    <a-light type="ambient" intensity="0.7"></a-light>
+ 
+    <!-- Entità per il target AR e il modello 3D -->
+    <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1">
+      <a-entity
+        id="tracked-model"
+        rotation="90 0 0" 
+        position="0 0 0" 
+        scale="2 2 2" 
+        gltf-model="#busto"
+        class="clickable"
+        animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
       </a-entity>
-    </a-scene>
+      <a-entity
+      gltf-model="#web"
+      id="nextbutton"
+      position="-.8 0 .5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#phone"
+      id="phoneButton"
+      position="0 0 2.5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#mail"
+      id="emailButton"
+      position=".8 0 .5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#vcf"
+      id="vcfButton"
+      position="0 0 -.1.5"
+      rotation="90 0 0"
+      scale="1 1 1"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-plane
+      id="balloon-plane"
+      scale=".35 .35 .35"
+      rotation="90 0 0"
+      width="3"
+      height="1"
+      visible="true"
+      src="#balloonTexture"
+      material="transparent: true; opacity: 1; side: double;"
+      animation__move="property: position; from: -.75 -.3 1.1; to: -.75 -.3 1.6; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      <a-text
+        id="balloon-text"
+        rotation="0 0 0"
+        position="0 .15 .05"
+        typewriting="value: ."
+        align="center"
+        width="2.7"
+        color="#0000ff"
+        material="transparent: false;">
+      </a-text>
+    </a-plane>
+    </a-entity>
 
-    <script>
-      // Inizializza il rilevamento dell'oggetto con Objectron
-      const videoElement = document.createElement('video');
-      const objectron = new window.Objectron.Objectron({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/objectron@0.3/${file}`,
-      });
-
-      // Funzione di callback per i risultati di Objectron
-      function onObjectronResults(results) {
-        if (results && results.detectedObjects.length > 0) {
-          const detectedObject = results.detectedObjects[0];
-          
-          // Ottieni la posizione dell'oggetto rilevato
-          const objectPosition = detectedObject.boundingBox.center;
-          console.log(objectPosition);
-
-          // Puoi passare la posizione a MindAR per migliorare il tracciamento
-          const targetEntity = document.querySelector("#ar-target");
-          targetEntity.setAttribute('position', `${objectPosition.x} ${objectPosition.y} ${objectPosition.z}`);
-        }
-      }
-
-      // Avvia il flusso video
-      async function startObjectron() {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        });
-        videoElement.srcObject = stream;
-        videoElement.play();
-        objectron.send({ image: videoElement });
-      }
-
-      startObjectron();
-    </script>
-  </body>
+    
+    <a-entity id="lost-model" position="0 0 0" scale="1500 1500 1500" visible="false" class="clickable">
+      <a-entity
+        id="tracked-model"
+        rotation="0 0 0" 
+        position="0 0 0" 
+        scale="1 1 1" 
+        gltf-model="#busto"
+        class="clickable"
+        animation__move="property: position; from: 0 0.25 0; to: 0 0.45 0; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      </a-entity>
+      <a-entity
+      gltf-model="#web"
+      id="nextbutton"
+      position="-.2 .25 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#phone"
+      id="phoneButton"
+      position="0 1.25 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#mail"
+      id="emailButton"
+      position=".4 .25 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-entity
+      gltf-model="#vcf"
+      id="vcfButton"
+      position="0 -.8 0"
+      rotation="0 0 0"
+      scale=".25 .25 .25"
+      class="clickable"
+      visible="false">
+    </a-entity>
+    <a-plane
+      id="balloon-plane"
+      scale=".22 .22 .22"
+      rotation="0 0 0"
+      width="3"
+      height="1"
+      visible="true"
+      src="#balloonTexture"
+      material="transparent: true; opacity: 1; side: double;"
+      animation__move="property: position; from: -.45 .7 -.15; to: -.45 .9 -.15; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      <a-text
+        id="balloon-text"
+        rotation="0 0 0"
+        position="0 .15 .05"
+        typewriting="value: ."
+        align="center"
+        width="2.7"
+        color="#0000ff"
+        material="transparent: false;">
+      </a-text>
+    </a-plane>
+  </a-entity>
+  
+</a-scene>
+</body>
 </html>
