@@ -36,96 +36,103 @@
     
     <script>
      AFRAME.registerComponent('image-tracker', {
-  init: async function () {
-    console.log("Caricamento TensorFlow.js...");
+        init: async function () {
+          console.log("Caricamento TensorFlow.js...");
 
-    // Caricamento modello di riconoscimento
-    this.model = await cocoSsd.load();
+          // Caricamento modello di riconoscimento
+          this.model = await cocoSsd.load();
 
-    // Creazione video per l'analisi in tempo reale
-    this.video = document.createElement('video');
-    this.video.setAttribute('autoplay', '');
-    this.video.setAttribute('playsinline', '');
-    this.video.style.position = 'absolute';
-    this.video.style.top = '0';
-    this.video.style.left = '0';
-    this.video.style.width = '1px'; // Nasconde il video
-    this.video.style.height = '1px';
-    document.body.appendChild(this.video);
+          // Creazione video per l'analisi in tempo reale
+          this.video = document.createElement('video');
+          this.video.setAttribute('autoplay', '');
+          this.video.setAttribute('playsinline', '');
+          this.video.style.position = 'absolute';
+          this.video.style.top = '0';
+          this.video.style.left = '0';
+          this.video.style.width = '1px'; // Nasconde il video
+          this.video.style.height = '1px';
+          document.body.appendChild(this.video);
 
-    // Creazione canvas per elaborare l'immagine
-    this.canvas = document.createElement('canvas');
-    this.ctx = this.canvas.getContext('2d');
-    document.body.appendChild(this.canvas);
+          // Creazione canvas per elaborare l'immagine
+          this.canvas = document.createElement('canvas');
+          this.ctx = this.canvas.getContext('2d');
+          document.body.appendChild(this.canvas);
 
-    // Variabile 'positions' dichiarata dentro 'init' per evitare problemi di scope
-    this.positions = [];
+          // Avvio della fotocamera
+          await this.startCamera();
+        },
 
-    this.startCamera();
-  },
+        async startCamera() {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: 640, height: 480 }
+          });
 
-  smoothPosition(x, y) {
-    // Accumula le posizioni in 'positions'
-    this.positions.push({ x, y });
-    if (this.positions.length > 5) this.positions.shift(); // Mantieni solo le ultime 5 posizioni
+          this.video.srcObject = stream;
+          this.video.onloadedmetadata = () => this.video.play();
 
-    const avgX = this.positions.reduce((sum, p) => sum + p.x, 0) / this.positions.length;
-    const avgY = this.positions.reduce((sum, p) => sum + p.y, 0) / this.positions.length;
+          this.detectImage();
+        },
 
-    return [avgX, avgY];
-  },
+        smoothPosition(x, y) {
+          // Dichiarazione della variabile positions dentro il componente
+          if (!this.positions) {
+            this.positions = [];
+          }
 
-  async startCamera() {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: 640, height: 480 }
-    });
+          this.positions.push({ x, y });
+          if (this.positions.length > 5) this.positions.shift(); // Mantieni solo le ultime 5 posizioni
 
-    this.video.srcObject = stream;
-    this.video.onloadedmetadata = () => this.video.play();
+          const avgX = this.positions.reduce((sum, p) => sum + p.x, 0) / this.positions.length;
+          const avgY = this.positions.reduce((sum, p) => sum + p.y, 0) / this.positions.length;
 
-    requestAnimationFrame(() => this.detectImage());
-  },
+          return [avgX, avgY];
+        },
 
-  async detectImage() {
-    this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-    const predictions = await this.model.detect(this.video);
+        async detectImage() {
+          // Assicurati che le dimensioni del canvas siano corrette
+          this.canvas.width = this.video.videoWidth;
+          this.canvas.height = this.video.videoHeight;
+          
+          this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+          const predictions = await this.model.detect(this.video);
 
-    if (predictions.length > 0) {
-      const target = predictions[0];
+          if (predictions.length > 0) {
+            const target = predictions[0];
 
-      // Usa Kalman per stabilizzare X e Y
-      const stableX = this.kalmanFilter(target.bbox[0]);
-      const stableY = this.kalmanFilter(target.bbox[1]);
+            // Usa Kalman per stabilizzare X e Y
+            const stableX = this.kalmanFilter(target.bbox[0]);
+            const stableY = this.kalmanFilter(target.bbox[1]);
 
-      // Applica il filtro di smoothing
-      const [smoothedX, smoothedY] = this.smoothPosition(stableX, stableY);
+            // Applica il filtro di smoothing
+            const [smoothedX, smoothedY] = this.smoothPosition(stableX, stableY);
 
-      // Aggiorna la posizione del modello 3D con le coordinate lisce
-      document.querySelector('#tracked-model').setAttribute('position', `${smoothedX} ${smoothedY} 0`);
-    }
+            // Aggiorna la posizione del modello 3D con le coordinate lisce
+            document.querySelector('#tracked-model').setAttribute('position', `${smoothedX} ${smoothedY} 0`);
+          }
 
-    requestAnimationFrame(() => this.detectImage());
-  },
+          // Assicurati che la chiamata venga fatta solo quando il frame precedente è stato completato
+          requestAnimationFrame(() => this.detectImage());
+        },
 
-  kalmanFilter(measurement, processNoise = 0.01, measurementNoise = 1) {
-    if (!this.kalman) {
-      this.kalman = { estimate: measurement, error: 1, processNoise, measurementNoise };
-    }
+        kalmanFilter(measurement, processNoise = 0.01, measurementNoise = 1) {
+          if (!this.kalman) {
+            this.kalman = { estimate: measurement, error: 1, processNoise, measurementNoise };
+          }
 
-    const K = this.kalman.error / (this.kalman.error + this.kalman.measurementNoise);
-    this.kalman.estimate += K * (measurement - this.kalman.estimate);
-    this.kalman.error = (1 - K) * (this.kalman.error + this.kalman.processNoise);
+          const K = this.kalman.error / (this.kalman.error + this.kalman.measurementNoise);
+          this.kalman.estimate += K * (measurement - this.kalman.estimate);
+          this.kalman.error = (1 - K) * (this.kalman.error + this.kalman.processNoise);
 
-    return this.kalman.estimate;
-  },
+          return this.kalman.estimate;
+        },
 
-  remove() {
-    this.video.pause();
-    this.video.srcObject.getTracks().forEach(track => track.stop());
-    document.body.removeChild(this.video);
-    document.body.removeChild(this.canvas);
-  }
-});
+        remove() {
+          this.video.pause();
+          this.video.srcObject.getTracks().forEach(track => track.stop());
+          document.body.removeChild(this.video);
+          document.body.removeChild(this.canvas);
+        }
+      });
     </script>
   </head>
   <body>
