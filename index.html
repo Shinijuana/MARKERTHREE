@@ -35,7 +35,6 @@
           const modelEntity = document.createElement('a-entity');
           modelEntity.setAttribute('gltf-model', modelUrl);
           
-          // Simula il caricamento del modello
           modelEntity.addEventListener('loaded', () => {
             resolve();
           });
@@ -46,20 +45,68 @@
         });
       }
 
-      // Assicurati che la promessa venga gestita correttamente
+      // Inizializza il rilevamento degli oggetti
+      async function runObjectDetection() {
+        const model = await cocoSsd.load(); // Carica il modello COCO-SSD
+        console.log("Modello caricato correttamente!");
+
+        const video = document.createElement('video'); // Crea un elemento video
+        const canvas = document.createElement('canvas'); // Crea un canvas
+        document.body.appendChild(canvas); // Aggiunge il canvas al corpo della pagina
+        const context = canvas.getContext('2d');
+
+        // Funzione per inizializzare la webcam
+        async function setupCamera() {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true
+          });
+          video.srcObject = stream;
+          video.play();
+        }
+
+        // Funzione per rilevare gli oggetti nel video
+        async function detectObjects() {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+
+          // Rilevamento degli oggetti nel frame del video
+          const predictions = await model.detect(video);
+
+          // Disegna le bounding box per ogni oggetto rilevato
+          predictions.forEach(prediction => {
+            const [x, y, width, height] = prediction.bbox;
+            context.beginPath();
+            context.rect(x, y, width, height);
+            context.lineWidth = 2;
+            context.strokeStyle = 'red';
+            context.fillStyle = 'red';
+            context.stroke();
+            context.fillText(prediction.class, x, y > 10 ? y - 5 : 10);
+          });
+
+          requestAnimationFrame(detectObjects); // Rileva in loop
+        }
+
+        await setupCamera(); // Avvia la webcam
+        video.onloadeddata = () => {
+          canvas.width = video.videoWidth; // Imposta la larghezza del canvas
+          canvas.height = video.videoHeight; // Imposta l'altezza del canvas
+          detectObjects(); // Avvia il rilevamento oggetti
+        };
+      }
+
+      // Avvia il rilevamento quando la pagina è pronta
       window.onload = function () {
+        runObjectDetection();
         loadModel('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf')
           .then(() => {
             console.log("Modello caricato correttamente!");
-            // Aggiungi logica per attivare o visualizzare il modello
             document.getElementById('tracked-model').setAttribute('visible', 'true');
           })
           .catch(error => {
             console.error("Errore nel caricamento del modello: ", error);
-            // Gestisci il caso in cui il modello non venga caricato
             document.getElementById('tracked-model').setAttribute('visible', 'false');
           });
-      }
+      };
     </script>
   </head>
 
