@@ -8,7 +8,6 @@
     <!-- TensorFlow.js + COCO-SSD -->
    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/yolov5"></script>
 
     <style>
       /* Assicurati che tutto lo schermo sia occupato senza margini */
@@ -42,11 +41,7 @@
       
       // Caricamento del modello COCO-SSD per la rilevazione oggetti
       this.model = await cocoSsd.load();
-
-      // Caricamento del modello YOLOv5
-      console.log("Caricamento modello YOLOv5...");
-      this.yoloModel = await tf.loadGraphModel('https://cdn.jsdelivr.net/npm/@tensorflow-models/yolov5/model.json');
-      console.log("Modello YOLOv5 caricato!");
+      console.log("Modello COCO-SSD caricato!");
 
       // Creazione video per l'analisi in tempo reale
       this.video = document.createElement('video');
@@ -81,27 +76,19 @@
     async detectImage() {
       this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
-      // Usa YOLOv5 per il rilevamento degli oggetti
-      const imageTensor = tf.browser.fromPixels(this.canvas);
-      const predictions = await this.yoloModel.executeAsync(imageTensor.expandDims(0));
-
-      const boxes = predictions[0].arraySync();
-      const scores = predictions[1].arraySync();
-      const classes = predictions[2].arraySync();
+      // Usa COCO-SSD per il rilevamento degli oggetti
+      const predictions = await this.model.detect(this.canvas);
 
       // Tracciamento e stabilizzazione
-      for (let i = 0; i < boxes.length; i++) {
-        if (scores[i] > 0.5) { // Se il punteggio è alto, considera l'oggetto
-          const [ymin, xmin, ymax, xmax] = boxes[i];
-          
-          // Aggiungi un filtro di Kalman per stabilizzare la posizione
-          const stableX = this.kalmanFilter(xmin);
-          const stableY = this.kalmanFilter(ymin);
+      predictions.forEach(prediction => {
+        if (prediction.score > 0.5) { // Se il punteggio è alto, considera l'oggetto
+          const stableX = this.kalmanFilter(prediction.bbox[0]);
+          const stableY = this.kalmanFilter(prediction.bbox[1]);
 
           // Aggiorna la posizione del modello 3D
           document.querySelector('#tracked-model').setAttribute('position', `${stableX} ${stableY} 0`);
         }
-      }
+      });
 
       requestAnimationFrame(() => this.detectImage());
     },
