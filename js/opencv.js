@@ -3,8 +3,19 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
     targetName: { type: 'string' },
   },
 
-  init() {
+  async init() {
+    await this.loadTensorFlow();
     this.loadOpenCV();
+  },
+
+  async loadTensorFlow() {
+    if (!window.tf) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs';
+      script.async = true;
+      document.head.appendChild(script);
+      await new Promise(resolve => script.onload = resolve);
+    }
   },
 
   loadOpenCV() {
@@ -20,10 +31,10 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
   },
 
   onOpenCvReady() {
-    this.initializeWebcamAndCanvas();
+    this.initializeTracking();
   },
 
-  initializeWebcamAndCanvas() {
+  initializeTracking() {
     const video = document.createElement('video');
     video.setAttribute('autoplay', '');
     document.body.appendChild(video);
@@ -38,30 +49,40 @@ AFRAME.registerComponent('tensorflow-contour-processor', {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
 
-          const processFrame = () => {
+          const kalman = new cv.KalmanFilter(4, 2);
+          kalman.transitionMatrix = cv.matFromArray(4, 4, cv.CV_32F, [1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1]);
+          cv.setIdentity(kalman.measurementMatrix);
+          cv.setIdentity(kalman.processNoiseCov, new cv.Scalar(1e-2));
+          cv.setIdentity(kalman.measurementNoiseCov, new cv.Scalar(1e-1));
+          cv.setIdentity(kalman.errorCovPost, new cv.Scalar(1));
+
+          const processFrame = async () => {
             ctx.drawImage(video, 0, 0);
             const src = cv.imread(canvas);
-            const edges = new cv.Mat();
+            const gray = new cv.Mat();
+            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
 
-            cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
-            cv.Canny(src, edges, 50, 150);
+            const edges = new cv.Mat();
+            cv.Canny(gray, edges, 50, 150);
 
             const contours = new cv.MatVector();
             const hierarchy = new cv.Mat();
             cv.findContours(edges, contours, hierarchy, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE);
 
-            for (let i = 0; i < contours.size(); i++) {
-              const contour = contours.get(i);
-              const approx = new cv.Mat();
-              cv.approxPolyDP(contour, approx, 3, true);
+            if (contours.size() > 0) {
+              const contour = contours.get(0);
+              const boundingRect = cv.boundingRect(contour);
+              
+              let prediction = kalman.predict();
+              let measurement = cv.matFromArray(2, 1, cv.CV_32F, [boundingRect.x, boundingRect.y]);
+              let corrected = kalman.correct(measurement);
 
-              const boundingRect = cv.boundingRect(approx);
-              cv.rectangle(src, boundingRect, [255, 0, 0, 255], 2);
-              approx.delete();
+              cv.rectangle(src, boundingRect, [0, 255, 0, 255], 2);
             }
 
             cv.imshow(canvas, src);
             src.delete();
+            gray.delete();
             edges.delete();
             contours.delete();
             hierarchy.delete();
