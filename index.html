@@ -1,14 +1,8 @@
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-   <!-- A-Frame e MindAR -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-    <!-- TensorFlow.js + COCO-SSD -->
-   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-
     <style>
       /* Assicurati che tutto lo schermo sia occupato senza margini */
       html, body {
@@ -29,131 +23,28 @@
       }
     </style>
     
-   <script src="js/next-button.js"></script>
+    <script src="js/next-button.js"></script>
     <script src="js/ending.js"></script>
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
-    
-        <script>
-      // Funzione per caricare la texture con controllo delle dimensioni
-      function checkImageLoaded(textureId) {
-        const textureImage = document.getElementById(textureId);
-        if (textureImage) {  // Verifica se l'immagine esiste
-          textureImage.onload = function () {
-            if (textureImage.width === 0 || textureImage.height === 0) {
-              console.error("La texture ha dimensioni non valide!");
-            } else {
-              console.log("Texture caricata correttamente");
-            }
-          };
-        } else {
-          console.error(`L'immagine con id ${textureId} non è stata trovata nel DOM!`);
-        }
-      }
-
-      checkImageLoaded('balloonTexture'); // Verifica la texture 'balloonTexture'
-    </script>
-
-    <script>
-      AFRAME.registerComponent('image-tracker', {
-        init: async function () {
-          console.log("Caricamento TensorFlow.js...");
-          this.model = await cocoSsd.load();
-          this.video = document.createElement('video');
-          this.video.setAttribute('autoplay', '');
-          this.video.setAttribute('playsinline', '');
-          this.video.style.position = 'absolute';
-          this.video.style.top = '0';
-          this.video.style.left = '0';
-          this.video.style.width = '1px';
-          this.video.style.height = '1px';
-          document.body.appendChild(this.video);
-
-          this.canvas = document.createElement('canvas');
-          this.ctx = this.canvas.getContext('2d');
-          document.body.appendChild(this.canvas);
-
-          await this.startCamera();
-        },
-
-        async startCamera() {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment', width: 640, height: 480 }
-          });
-
-          this.video.srcObject = stream;
-          this.video.onloadedmetadata = () => this.video.play();
-
-          this.detectImage();
-        },
-
-        smoothPosition(x, y) {
-          if (!this.positions) {
-            this.positions = [];
-          }
-
-          this.positions.push({ x, y });
-          if (this.positions.length > 5) this.positions.shift(); // Mantieni solo le ultime 5 posizioni
-
-          const avgX = this.positions.reduce((sum, p) => sum + p.x, 0) / this.positions.length;
-          const avgY = this.positions.reduce((sum, p) => sum + p.y, 0) / this.positions.length;
-
-          return [avgX, avgY];
-        },
-
-        async detectImage() {
-          this.canvas.width = this.video.videoWidth;
-          this.canvas.height = this.video.videoHeight;
-          
-          this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-          const predictions = await this.model.detect(this.video);
-
-          if (predictions.length > 0) {
-            const target = predictions[0];
-
-            const stableX = this.kalmanFilter(target.bbox[0]);
-            const stableY = this.kalmanFilter(target.bbox[1]);
-
-            const [smoothedX, smoothedY] = this.smoothPosition(stableX, stableY);
-
-            document.querySelector('#tracked-model').setAttribute('position', `${smoothedX} ${smoothedY} 0`);
-          }
-
-          requestAnimationFrame(() => this.detectImage());
-        },
-
-        kalmanFilter(measurement, processNoise = 0.01, measurementNoise = 1) {
-          if (!this.kalman) {
-            this.kalman = { estimate: measurement, error: 1, processNoise, measurementNoise };
-          }
-
-          const K = this.kalman.error / (this.kalman.error + this.kalman.measurementNoise);
-          this.kalman.estimate += K * (measurement - this.kalman.estimate);
-          this.kalman.error = (1 - K) * (this.kalman.error + this.kalman.processNoise);
-
-          return this.kalman.estimate;
-        },
-
-        remove() {
-          this.video.pause();
-          this.video.srcObject.getTracks().forEach(track => track.stop());
-          document.body.removeChild(this.video);
-          document.body.removeChild(this.canvas);
-        }
-      });
-    </script>
   </head>
+
   <body>
-    <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/targets.mind; filterMinCF: 0.01; filterBeta: 100; warmupTolerance: 5; missTolerance: 5;" 
-               keep-visible-on-lost
-               ending
-               typewriting
-               next-button
-               color-space="sRGB" 
-               renderer="colorManagement: true, physicallyCorrectLights" 
-               vr-mode-ui="enabled: false" 
-               embedded
-               device-orientation-permission-ui="enabled: false">
+    <!-- Overlay di scansione per il tracciamento dell'image target -->
+
+    <!-- Configurazione di A-Frame con MindAR -->
+    <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/DOS3.mind; filterMinCF: 0.01; filterBeta: 100; warmupTolerance: 3; missTolerance: 5;" 
+             keep-visible-on-lost
+             ending
+             typewriting
+             next-button
+             color-space="sRGB" 
+             renderer="colorManagement: true, physicallyCorrectLights" 
+             vr-mode-ui="enabled: false" 
+             embedded
+             device-orientation-permission-ui="enabled: false">
+      
+      <!-- Caricamento degli asset -->
       <a-assets>
         <a-asset-item id="busto" src="https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf"></a-asset-item>
         <a-asset-item id="web" src="assets/web.glb"></a-asset-item>
@@ -162,198 +53,42 @@
         <a-asset-item id="vcf" src="assets/vcf.glb"></a-asset-item>
         <img id="balloonTexture" src="assets/balloon.png" />
       </a-assets>
-    
-    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
-      
-    <a-image
-      id="startImage"
-      src="assets/markerdos.jpg"
-      position="0 0 -15"
-      scale="10 7 10"
-      opacity=".8"
-      visible="true"
-      animation__pulse="property: scale; from: 4 4 4; to: 4.5 4.5 4.5; dir: alternate; loop: true; dur: 1000">
-    </a-image>
-    <a-image
-      id="finalp"
-      src="assets/final.png"
-      position="0 .2 -11"
-      scale="0 0 0"
-      opacity="1"
-      visible="false">
-    </a-image>
-    <a-image
-      id="reload"
-      src="assets/reload.png"
-      position="0 2 -10"
-      scale="0 0 0"
-      opacity="1"
-      class="clickable"
-      visible="false">
-    </a-image>
-    <a-image
-      id="down"
-      src="assets/vcf3.png"
-      position="0 -2 -10"
-      scale="0 0 0"
-      opacity="1"
-      class="clickable"
-      visible="false">
-    </a-image>
-    <a-image
-      id="closeButton"
-      src="assets/close.png"
-      position="1.5 3.5 -10"
-      scale=".5 .5 .5"
-      opacity="1"
-      class="clickable"
-      visible="true">
-    </a-image>
-    </a-camera>
-    
-    <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
-    <a-light type="ambient" intensity="0.7"></a-light>
- 
-    <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0"; rotation="0 0 0"; scale="1 1 1"; image-tracker>
-      <a-entity
-        id="tracked-model"
-        rotation="90 0 0" 
-        position="0 0 0" 
-        scale="2 2 2" 
-        gltf-model="#busto"
-        class="clickable"
-        animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
-      </a-entity>
-      <a-entity
-      gltf-model="#web"
-      id="nextbutton"
-      position="-.8 0 .5"
-      rotation="90 0 0"
-      scale="1 1 1"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#phone"
-      id="phoneButton"
-      position="0 0 2.5"
-      rotation="90 0 0"
-      scale="1 1 1"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#mail"
-      id="emailButton"
-      position=".8 0 .5"
-      rotation="90 0 0"
-      scale="1 1 1"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#vcf"
-      id="vcfButton"
-      position="0 0 -.1.5"
-      rotation="90 0 0"
-      scale="1 1 1"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-plane
-      id="balloon-plane"
-      scale=".35 .35 .35"
-      rotation="90 0 0"
-      width="3"
-      height="1"
-      visible="true"
-      src="#balloonTexture"
-      material="transparent: true; opacity: 1; side: double;"
-      animation__move="property: position; from: -.75 -.3 1.1; to: -.75 -.3 1.6; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
-      <a-text
-        id="balloon-text"
-        rotation="0 0 0"
-        position="0 .15 .05"
-        typewriting="value: ."
-        align="center"
-        width="2.7"
-        color="#0000ff"
-        material="transparent: false;">
-      </a-text>
-    </a-plane>
-    </a-entity>
 
-    
-    <a-entity id="lost-model" position="0 0 0" scale="1500 1500 1500" visible="false" class="clickable">
-      <a-entity
-        id="tracked-model"
-        rotation="0 0 0" 
-        position="0 0 0" 
-        scale="1 1 1" 
-        gltf-model="#busto"
-        class="clickable"
-        animation__move="property: position; from: 0 0.25 0; to: 0 0.45 0; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+      <!-- Configurazione della telecamera -->
+      <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="near: 10; far: 10000; objects: .clickable">
+        
+        <a-image id="startImage" src="assets/markerdos.jpg" position="0 0 -15" scale="10 7 10" opacity=".8" visible="true" animation__pulse="property: scale; from: 4 4 4; to: 4.5 4.5 4.5; dir: alternate; loop: true; dur: 1000"></a-image>
+        <a-image id="finalp" src="assets/final.png" position="0 .2 -11" scale="0 0 0" opacity="1" visible="false"></a-image>
+        <a-image id="reload" src="assets/reload.png" position="0 2 -10" scale="0 0 0" opacity="1" class="clickable" visible="false"></a-image>
+        <a-image id="down" src="assets/vcf3.png" position="0 -2 -10" scale="0 0 0" opacity="1" class="clickable" visible="false"></a-image>
+        <a-image id="closeButton" src="assets/close.png" position="1.5 3.5 -10" scale=".5 .5 .5" opacity="1" class="clickable" visible="true"></a-image>
+      </a-camera>
+      
+      <a-light type="directional" intensity="0.5" position="1 1 1"></a-light>
+      <a-light type="ambient" intensity="0.7"></a-light>
+   
+      <!-- Entità per il target AR e il modello 3D -->
+      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1">
+        <a-entity id="tracked-model" rotation="90 0 0" position="0 0 0" scale="2 2 2" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
+        <a-entity gltf-model="#web" id="nextbutton" position="-.8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
+        <a-entity gltf-model="#phone" id="phoneButton" position="0 0 2.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
+        <a-entity gltf-model="#mail" id="emailButton" position=".8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
+        <a-entity gltf-model="#vcf" id="vcfButton" position="0 0 -.1.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
+        <a-plane id="balloon-plane" scale=".35 .35 .35" rotation="90 0 0" width="3" height="1" visible="true" src="#balloonTexture" material="transparent: true; opacity: 1; side: double;" animation__move="property: position; from: -.75 -.3 1.1; to: -.75 -.3 1.6; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+          <a-text id="balloon-text" rotation="0 0 0" position="0 .15 .05" typewriting="value: ." align="center" width="2.7" color="#0000ff" material="transparent: false;"></a-text>
+        </a-plane>
       </a-entity>
-      <a-entity
-      gltf-model="#web"
-      id="nextbutton"
-      position="-.2 .25 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#phone"
-      id="phoneButton"
-      position="0 1.25 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#mail"
-      id="emailButton"
-      position=".4 .25 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-entity
-      gltf-model="#vcf"
-      id="vcfButton"
-      position="0 -.8 0"
-      rotation="0 0 0"
-      scale=".25 .25 .25"
-      class="clickable"
-      visible="false">
-    </a-entity>
-    <a-plane
-      id="balloon-plane"
-      scale=".22 .22 .22"
-      rotation="0 0 0"
-      width="3"
-      height="1"
-      visible="true"
-      src="#balloonTexture"
-      material="transparent: true; opacity: 1; side: double;"
-      animation__move="property: position; from: -.45 .7 -.15; to: -.45 .9 -.15; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
-      <a-text
-        id="balloon-text"
-        rotation="0 0 0"
-        position="0 .15 .05"
-        typewriting="value: ."
-        align="center"
-        width="2.7"
-        color="#0000ff"
-        material="transparent: false;">
-      </a-text>
-    </a-plane>
-  </a-entity>
-  
-</a-scene>
-</body>
+    
+      <a-entity id="lost-model" position="0 0 0" scale="1500 1500 1500" visible="false" class="clickable">
+        <a-entity id="tracked-model" rotation="0 0 0" position="0 0 0" scale="1 1 1" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0.25 0; to: 0 0.45 0; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
+        <a-entity gltf-model="#web" id="nextbutton" position="-.2 .25 0" rotation="0 0 0" scale=".25 .25 .25" class="clickable" visible="false"></a-entity>
+        <a-entity gltf-model="#phone" id="phoneButton" position="0 1.25 0" rotation="0 0 0" scale=".25 .25 .25" class="clickable" visible="false"></a-entity>
+        <a-entity gltf-model="#mail" id="emailButton" position=".4 .25 0" rotation="0 0 0" scale=".25 .25 .25" class="clickable" visible="false"></a-entity>
+        <a-entity gltf-model="#vcf" id="vcfButton" position="0 -.8 0" rotation="0 0 0" scale=".25 .25 .25" class="clickable" visible="false"></a-entity>
+        <a-plane id="balloon-plane" scale=".22 .22 .22" rotation="0 0 0" width="3" height="1" visible="true" src="#balloonTexture" material="transparent: true; opacity: 1; side: double;" animation__move="property: position; from: -.45 .7 -.15; to: -.45 .9 -.15; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;">
+          <a-text id="balloon-text" rotation="0 0 0" position="0 .15 .05" typewriting="value: ." align="center" width="2.7" color="#0000ff" material="transparent: false;"></a-text>
+        </a-plane>
+      </a-entity>
+    </a-scene>
+  </body>
 </html>
