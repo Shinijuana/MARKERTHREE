@@ -34,17 +34,21 @@
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
     
-       <script>
+        <script>
       // Funzione per caricare la texture con controllo delle dimensioni
       function checkImageLoaded(textureId) {
         const textureImage = document.getElementById(textureId);
-        textureImage.onload = function () {
-          if (textureImage.width === 0 || textureImage.height === 0) {
-            console.error("La texture ha dimensioni non valide!");
-          } else {
-            console.log("Texture caricata correttamente");
-          }
-        };
+        if (textureImage) {  // Verifica se l'immagine esiste
+          textureImage.onload = function () {
+            if (textureImage.width === 0 || textureImage.height === 0) {
+              console.error("La texture ha dimensioni non valide!");
+            } else {
+              console.log("Texture caricata correttamente");
+            }
+          };
+        } else {
+          console.error(`L'immagine con id ${textureId} non è stata trovata nel DOM!`);
+        }
       }
 
       checkImageLoaded('balloonTexture'); // Verifica la texture 'balloonTexture'
