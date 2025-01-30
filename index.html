@@ -25,7 +25,9 @@
       }
 
      canvas#segmentationCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; opacity: 0.5; z-index: 1; }
+      button#toggleSegmentation { position: fixed; bottom: 20px; left: 20px; z-index: 10; padding: 10px; font-size: 16px; }
     </style>
+   
 
     <script src="js/next-button.js"></script>
     <script src="js/ending.js"></script>
@@ -39,6 +41,7 @@
     <!-- Overlay di scansione per il tracciamento dell'image target -->
     <video id="video" autoplay playsinline></video>
     <canvas id="segmentationCanvas"></canvas>
+    <button id="toggleSegmentation">Toggle Segmentazione</button>
     <!-- Configurazione di A-Frame con MindAR -->
     <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/targets.mind; filterMinCF: 0.01; filterBeta: 100; warmupTolerance: 3; missTolerance: 5;" 
              keep-visible-on-lost
@@ -49,7 +52,8 @@
              renderer="colorManagement: true, physicallyCorrectLights" 
              vr-mode-ui="enabled: false" 
              embedded
-             device-orientation-permission-ui="enabled: false">
+             device-orientation-permission-ui="enabled: false"
+             segmentation-tracker>
       
       <!-- Caricamento degli asset -->
       <a-assets>
@@ -75,7 +79,7 @@
       <a-light type="ambient" intensity="0.7"></a-light>
    
       <!-- Entità per il target AR e il modello 3D -->
-      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" mindar-tracker>
+      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;">
         <a-entity id="tracked-model" rotation="90 0 0" position="0 0 0" scale="2 2 2" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
         <a-entity gltf-model="#web" id="nextbutton" position="-.8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
         <a-entity gltf-model="#phone" id="phoneButton" position="0 0 2.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
@@ -96,9 +100,10 @@
           <a-text id="balloon-text" rotation="0 0 0" position="0 .15 .05" typewriting="value: ." align="center" width="2.7" color="#0000ff" material="transparent: false;"></a-text>
         </a-plane>
       </a-entity>
-      <a-entity segmentation-tracker></a-entity>
+      
     </a-scene>
     <script>
+        <script>
         AFRAME.registerComponent('segmentation-tracker', {
             init: async function () {
                 console.log("Caricamento TensorFlow BodyPix...");
@@ -108,6 +113,12 @@
                 this.video = document.getElementById('video');
                 this.segmentationCanvas = document.getElementById('segmentationCanvas');
                 this.segmentationCtx = this.segmentationCanvas.getContext('2d');
+
+                this.showSegmentation = true;
+                document.getElementById('toggleSegmentation').addEventListener('click', () => {
+                    this.showSegmentation = !this.showSegmentation;
+                    this.segmentationCanvas.style.display = this.showSegmentation ? 'block' : 'none';
+                });
 
                 this.startCamera();
             },
@@ -132,14 +143,14 @@
                 });
 
                 const mask = segmentation.data;
-
                 const imageData = this.segmentationCtx.createImageData(this.video.videoWidth, this.video.videoHeight);
+
                 for (let i = 0; i < mask.length; i++) {
                     if (mask[i] === 0) {  // Segmenta il biglietto da visita
-                        imageData.data[i * 4] = 255;   // Rosso
-                        imageData.data[i * 4 + 1] = 0; // Verde
+                        imageData.data[i * 4] = 0;   // Rosso
+                        imageData.data[i * 4 + 1] = 255; // Verde
                         imageData.data[i * 4 + 2] = 0; // Blu
-                        imageData.data[i * 4 + 3] = 255; // Opacità
+                        imageData.data[i * 4 + 3] = 180; // Opacità
                     } else {
                         imageData.data[i * 4 + 3] = 0; // Trasparente
                     }
@@ -149,6 +160,7 @@
                 requestAnimationFrame(() => this.processFrame());
             }
         });
+    </script>
     </script>
 
   </body>
