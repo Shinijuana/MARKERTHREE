@@ -62,7 +62,7 @@
 
             async startCamera() {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: 640, height: 480 }
+                video: { facingMode: 'environment', width: 1280, height: 720 }  // Aumenta la risoluzione per una maggiore precisione
                 });
 
                 this.video.srcObject = stream;
@@ -91,14 +91,15 @@
             },
 
             kalmanFilter(measurement) {
-                if (!this.kalman) {
-                    this.kalman = { estimate: measurement, error: 1, processNoise: 0.01 };
-                }
-                const K = this.kalman.error / (this.kalman.error + this.kalman.processNoise);
-                this.kalman.estimate += K * (measurement - this.kalman.estimate);
-                this.kalman.error *= (1 - K);
-                return this.kalman.estimate;
-            },
+              if (!this.kalman) {
+                this.kalman = { estimate: measurement, error: 2, processNoise: 0.05 };
+              }
+              const K = this.kalman.error / (this.kalman.error + this.kalman.processNoise);
+              this.kalman.estimate += K * (measurement - this.kalman.estimate);
+              this.kalman.error *= (1 - K);
+              return this.kalman.estimate;
+            }
+
 
             remove() {
                 this.video.pause();
@@ -115,7 +116,7 @@
   <!-- Overlay di scansione per il tracciamento dell'image target -->
 
   <!-- Configurazione di A-Frame con MindAR -->
-  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/targets.mind; filterMinCF: 0.1; filterBeta: 5; warmupTolerance: 2; missTolerance: 7;" 
+  <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/targets.mind; filterMinCF: 0.2; filterBeta: 10; warmupTolerance: 3; missTolerance: 5;" 
              keep-visible-on-lost
              
              ending
