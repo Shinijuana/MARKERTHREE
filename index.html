@@ -32,7 +32,6 @@
     <script src="js/ending.js"></script>
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
-    <script src="js/opencv.js"></script>
     
     <script>
         AFRAME.registerComponent('image-tracker', {
@@ -191,7 +190,7 @@
     <a-light type="ambient" intensity="0.7"></a-light>
  
     <!-- Entità per il target AR e il modello 3D -->
-    <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0"; rotation="0 0 0"; scale="1 1 1"; image-tracker; tensorflow-contour-processor>
+    <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0"; rotation="0 0 0"; scale="1 1 1"; image-tracker>
       <a-entity
         id="tracked-model"
         rotation="90 0 0" 
