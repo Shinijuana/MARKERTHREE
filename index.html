@@ -37,7 +37,7 @@
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
 
-   <script>
+  <script>
         class KalmanFilter {
             constructor(processNoise = 0.01, measurementNoise = 0.1, estimateError = 1) {
                 this.processNoise = processNoise;
@@ -45,7 +45,6 @@
                 this.estimateError = estimateError;
                 this.estimate = 0;
             }
-
             update(measurement) {
                 let K = this.estimateError / (this.estimateError + this.measurementNoise);
                 this.estimate = this.estimate + K * (measurement - this.estimate);
@@ -54,25 +53,21 @@
             }
         }
 
-        AFRAME.registerComponent('image-tracker', {
+        AFRAME.registerComponent('segmentation-tracker', {
             init: async function () {
-                console.log("Caricamento TensorFlow.js...");
-                this.model = await cocoSsd.load();
-                
+                console.log("Caricamento DeepLabV3...");
+                this.model = await deeplab.load({ base: 'pascal' });
+
                 this.video = document.createElement('video');
                 this.video.setAttribute('autoplay', '');
                 this.video.setAttribute('playsinline', '');
-                this.video.style.display = "none"; // Nasconde il video
                 document.body.appendChild(this.video);
 
                 this.canvas = document.createElement('canvas');
                 this.ctx = this.canvas.getContext('2d');
-                document.body.appendChild(this.canvas);
 
                 this.kalmanX = new KalmanFilter();
                 this.kalmanY = new KalmanFilter();
-
-                this.lastPosition = { x: 0, y: 0 };
 
                 this.startCamera();
             },
@@ -85,27 +80,41 @@
                 this.video.srcObject = stream;
                 this.video.onloadedmetadata = () => this.video.play();
                 
-                requestAnimationFrame(() => this.detectImage());
+                requestAnimationFrame(() => this.detectSegmentation());
             },
 
-            async detectImage() {
-                if (!this.trackingLost) {
-                    requestAnimationFrame(() => this.detectImage());
-                    return;
+            async detectSegmentation() {
+                this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+                
+                // Otteniamo la segmentazione dell'oggetto
+                const segmentation = await this.model.segment(this.video);
+                if (!segmentation) return requestAnimationFrame(() => this.detectSegmentation());
+
+                const mask = segmentation.segmentationMap;
+                let totalX = 0, totalY = 0, count = 0;
+
+                // Calcoliamo il centro dell'oggetto segmentato
+                for (let i = 0; i < mask.length; i++) {
+                    if (mask[i] === 1) { // Pixel dell'oggetto
+                        const x = i % this.canvas.width;
+                        const y = Math.floor(i / this.canvas.width);
+                        totalX += x;
+                        totalY += y;
+                        count++;
+                    }
                 }
 
-                this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-                const predictions = await this.model.detect(this.video);
+                if (count > 0) {
+                    let avgX = totalX / count;
+                    let avgY = totalY / count;
 
-                if (predictions.length > 0) {
-                    const target = predictions[0];
-                    let smoothedX = this.kalmanX.update(target.bbox[0]);
-                    let smoothedY = this.kalmanY.update(target.bbox[1]);
+                    let smoothedX = this.kalmanX.update(avgX);
+                    let smoothedY = this.kalmanY.update(avgY);
 
                     this.interpolateModel(smoothedX, smoothedY);
                 }
 
-                requestAnimationFrame(() => this.detectImage());
+                requestAnimationFrame(() => this.detectSegmentation());
             },
 
             interpolateModel(targetX, targetY) {
@@ -128,9 +137,9 @@
                 });
 
                 scene.addEventListener('targetLost', () => {
-                    console.log("Target perso! Attiviamo COCO-SSD...");
+                    console.log("Target perso! Attiviamo DeepLab...");
                     document.querySelector('#tracked-model').setAttribute('visible', 'false');
-                    document.querySelector('[image-tracker]').trackingLost = true;
+                    document.querySelector('[segmentation-tracker]').trackingLost = true;
                 });
             }
         });
@@ -176,7 +185,7 @@
       <a-light type="ambient" intensity="0.7"></a-light>
    
       <!-- Entità per il target AR e il modello 3D -->
-      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1"; mindar-tracker>
+      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" mindar-tracker>
         <a-entity id="tracked-model" rotation="90 0 0" position="0 0 0" scale="2 2 2" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
         <a-entity gltf-model="#web" id="nextbutton" position="-.8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
         <a-entity gltf-model="#phone" id="phoneButton" position="0 0 2.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
@@ -186,7 +195,7 @@
           <a-text id="balloon-text" rotation="0 0 0" position="0 .15 .05" typewriting="value: ." align="center" width="2.7" color="#0000ff" material="transparent: false;"></a-text>
         </a-plane>
       </a-entity>
-      <a-entity image-tracker></a-entity>
+      
       <a-entity id="lost-model" position="0 0 0" scale="1500 1500 1500" visible="false" class="clickable">
         <a-entity id="tracked-model" rotation="0 0 0" position="0 0 0" scale="1 1 1" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0.25 0; to: 0 0.45 0; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
         <a-entity gltf-model="#web" id="nextbutton" position="-.2 .25 0" rotation="0 0 0" scale=".25 .25 .25" class="clickable" visible="false"></a-entity>
@@ -197,6 +206,7 @@
           <a-text id="balloon-text" rotation="0 0 0" position="0 .15 .05" typewriting="value: ." align="center" width="2.7" color="#0000ff" material="transparent: false;"></a-text>
         </a-plane>
       </a-entity>
+      <a-entity segmentation-tracker></a-entity>
     </a-scene>
   </body>
 </html>
