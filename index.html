@@ -34,31 +34,41 @@
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
     
+       <script>
+      // Funzione per caricare la texture con controllo delle dimensioni
+      function checkImageLoaded(textureId) {
+        const textureImage = document.getElementById(textureId);
+        textureImage.onload = function () {
+          if (textureImage.width === 0 || textureImage.height === 0) {
+            console.error("La texture ha dimensioni non valide!");
+          } else {
+            console.log("Texture caricata correttamente");
+          }
+        };
+      }
+
+      checkImageLoaded('balloonTexture'); // Verifica la texture 'balloonTexture'
+    </script>
+
     <script>
-     AFRAME.registerComponent('image-tracker', {
+      AFRAME.registerComponent('image-tracker', {
         init: async function () {
           console.log("Caricamento TensorFlow.js...");
-
-          // Caricamento modello di riconoscimento
           this.model = await cocoSsd.load();
-
-          // Creazione video per l'analisi in tempo reale
           this.video = document.createElement('video');
           this.video.setAttribute('autoplay', '');
           this.video.setAttribute('playsinline', '');
           this.video.style.position = 'absolute';
           this.video.style.top = '0';
           this.video.style.left = '0';
-          this.video.style.width = '1px'; // Nasconde il video
+          this.video.style.width = '1px';
           this.video.style.height = '1px';
           document.body.appendChild(this.video);
 
-          // Creazione canvas per elaborare l'immagine
           this.canvas = document.createElement('canvas');
           this.ctx = this.canvas.getContext('2d');
           document.body.appendChild(this.canvas);
 
-          // Avvio della fotocamera
           await this.startCamera();
         },
 
@@ -74,7 +84,6 @@
         },
 
         smoothPosition(x, y) {
-          // Dichiarazione della variabile positions dentro il componente
           if (!this.positions) {
             this.positions = [];
           }
@@ -89,7 +98,6 @@
         },
 
         async detectImage() {
-          // Assicurati che le dimensioni del canvas siano corrette
           this.canvas.width = this.video.videoWidth;
           this.canvas.height = this.video.videoHeight;
           
@@ -99,18 +107,14 @@
           if (predictions.length > 0) {
             const target = predictions[0];
 
-            // Usa Kalman per stabilizzare X e Y
             const stableX = this.kalmanFilter(target.bbox[0]);
             const stableY = this.kalmanFilter(target.bbox[1]);
 
-            // Applica il filtro di smoothing
             const [smoothedX, smoothedY] = this.smoothPosition(stableX, stableY);
 
-            // Aggiorna la posizione del modello 3D con le coordinate lisce
             document.querySelector('#tracked-model').setAttribute('position', `${smoothedX} ${smoothedY} 0`);
           }
 
-          // Assicurati che la chiamata venga fatta solo quando il frame precedente è stato completato
           requestAnimationFrame(() => this.detectImage());
         },
 
