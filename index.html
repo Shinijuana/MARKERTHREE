@@ -8,40 +8,108 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
 
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-      }
-
-      a-scene {
-        width: 100vw;
-        height: 100vh;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-
-     canvas#segmentationCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; opacity: 0.5; z-index: 1; }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; }
+      video { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -1; }
+      canvas#segmentationCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; opacity: 0.7; z-index: 2; display: none; }
       button#toggleSegmentation { position: fixed; bottom: 20px; left: 20px; z-index: 10; padding: 10px; font-size: 16px; }
     </style>
    
-
     <script src="js/next-button.js"></script>
     <script src="js/ending.js"></script>
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
-
- 
-  </head>
-
+ </head>
+  
   <body>
     <!-- Overlay di scansione per il tracciamento dell'image target -->
     <video id="video" autoplay playsinline></video>
     <canvas id="segmentationCanvas"></canvas>
     <button id="toggleSegmentation">Toggle Segmentazione</button>
+
+    <script>
+        AFRAME.registerComponent('segmentation-tracker', {
+            init: async function () {
+                console.log("Caricamento TensorFlow BodyPix...");
+                this.model = await bodyPix.load();
+                console.log("Modello BodyPix caricato!");
+
+                this.video = document.getElementById('video');
+                this.segmentationCanvas = document.getElementById('segmentationCanvas');
+                this.segmentationCtx = this.segmentationCanvas.getContext('2d');
+
+                this.showSegmentation = false;
+                document.getElementById('toggleSegmentation').addEventListener('click', () => {
+                    this.showSegmentation = !this.showSegmentation;
+                    this.segmentationCanvas.style.display = this.showSegmentation ? 'block' : 'none';
+                    console.log("Segmentazione attivata:", this.showSegmentation);
+                });
+
+                this.startCamera();
+            },
+
+            async startCamera() {
+                try {
+                    console.log("Attivazione webcam...");
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    this.video.srcObject = stream;
+                    this.video.onloadedmetadata = () => {
+                        console.log("Webcam attivata con successo!");
+                        this.video.play();
+                        this.processFrame();
+                    };
+                } catch (error) {
+                    console.error("Errore nell'attivazione della webcam:", error);
+                }
+            },
+
+            async processFrame() {
+                if (!this.showSegmentation) {
+                    requestAnimationFrame(() => this.processFrame());
+                    return;
+                }
+
+                this.segmentationCanvas.width = this.video.videoWidth;
+                this.segmentationCanvas.height = this.video.videoHeight;
+
+                try {
+                    console.log("Elaborazione della segmentazione...");
+                    const segmentation = await this.model.segmentPerson(this.video, {
+                        flipHorizontal: false,
+                        internalResolution: 'medium',
+                        segmentationThreshold: 0.5
+                    });
+
+                    const mask = segmentation.data;
+                    const imageData = this.segmentationCtx.createImageData(this.video.videoWidth, this.video.videoHeight);
+
+                    for (let i = 0; i < mask.length; i++) {
+                        if (mask[i] === 1) {  // Segmenta la persona
+                            imageData.data[i * 4] = 255;  // Rosso
+                            imageData.data[i * 4 + 1] = 0; // Verde
+                            imageData.data[i * 4 + 2] = 0; // Blu
+                            imageData.data[i * 4 + 3] = 150; // Opacità
+                        } else {
+                            imageData.data[i * 4 + 3] = 0; // Trasparente
+                        }
+                    }
+
+                    this.segmentationCtx.putImageData(imageData, 0, 0);
+                    console.log("Segmentazione aggiornata");
+                } catch (error) {
+                    console.error("Errore nella segmentazione:", error);
+                }
+
+                requestAnimationFrame(() => this.processFrame());
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const scene = document.querySelector("a-scene");
+            if (scene) {
+                scene.setAttribute("segmentation-tracker", "");
+            }
+        });
+    </script>
     <!-- Configurazione di A-Frame con MindAR -->
     <a-scene mindar-image="uiScanning: no; imageTargetSrc: https://raw.githack.com/Shinijuana/MARKERTHREE/main/targets.mind; filterMinCF: 0.01; filterBeta: 100; warmupTolerance: 3; missTolerance: 5;" 
              keep-visible-on-lost
@@ -102,64 +170,6 @@
       </a-entity>
       
     </a-scene>
-    <script>
-        AFRAME.registerComponent('segmentation-tracker', {
-            init: async function () {
-                console.log("Caricamento TensorFlow BodyPix...");
-                this.model = await bodyPix.load();
-                console.log("Modello BodyPix caricato!");
-
-                this.video = document.getElementById('video');
-                this.segmentationCanvas = document.getElementById('segmentationCanvas');
-                this.segmentationCtx = this.segmentationCanvas.getContext('2d');
-
-                this.showSegmentation = true;
-                document.getElementById('toggleSegmentation').addEventListener('click', () => {
-                    this.showSegmentation = !this.showSegmentation;
-                    this.segmentationCanvas.style.display = this.showSegmentation ? 'block' : 'none';
-                });
-
-                this.startCamera();
-            },
-
-            async startCamera() {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                this.video.srcObject = stream;
-                this.video.onloadedmetadata = () => {
-                    this.video.play();
-                    this.processFrame();
-                };
-            },
-
-            async processFrame() {
-                this.segmentationCanvas.width = this.video.videoWidth;
-                this.segmentationCanvas.height = this.video.videoHeight;
-
-                const segmentation = await this.model.segmentPerson(this.video, {
-                    flipHorizontal: false,
-                    internalResolution: 'medium',
-                    segmentationThreshold: 0.5
-                });
-
-                const mask = segmentation.data;
-                const imageData = this.segmentationCtx.createImageData(this.video.videoWidth, this.video.videoHeight);
-
-                for (let i = 0; i < mask.length; i++) {
-                    if (mask[i] === 0) {  // Segmenta il biglietto da visita
-                        imageData.data[i * 4] = 0;   // Rosso
-                        imageData.data[i * 4 + 1] = 255; // Verde
-                        imageData.data[i * 4 + 2] = 0; // Blu
-                        imageData.data[i * 4 + 3] = 180; // Opacità
-                    } else {
-                        imageData.data[i * 4 + 3] = 0; // Trasparente
-                    }
-                }
-
-                this.segmentationCtx.putImageData(imageData, 0, 0);
-                requestAnimationFrame(() => this.processFrame());
-            }
-        });
-    </script>
 
   </body>
 </html>
