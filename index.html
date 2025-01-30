@@ -85,7 +85,7 @@
                     const stableY = this.kalmanFilter(target.bbox[1]);
 
                     // Aggiorna posizione modello 3D in base al tracciamento
-                    document.querySelector('#tracked-model').setAttribute('position', ${stableX} ${stableY} 0);
+                    document.querySelector('#tracked-model').setAttribute('position', `${stableX} ${stableY} 0`);
                 }
 
                 requestAnimationFrame(() => this.detectImage());
