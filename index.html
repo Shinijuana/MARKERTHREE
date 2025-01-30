@@ -4,7 +4,7 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script> <!-- Caricamento COCO-SSD -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <style>
       html, body {
         margin: 0;
@@ -38,85 +38,79 @@
     <script src="js/keepvisible.js"></script>
 
     <script>
-      // Funzione per caricare il modello 3D
-      function loadModel(modelUrl) {
-        return new Promise((resolve, reject) => {
-          const modelEntity = document.createElement('a-entity');
-          modelEntity.setAttribute('gltf-model', modelUrl);
+    AFRAME.registerComponent('image-tracker', {
+            init: async function () {
+                console.log("Caricamento TensorFlow.js...");
+                
+                // Caricamento modello di riconoscimento
+                this.model = await cocoSsd.load();
+                
+                // Creazione video per l'analisi in tempo reale
+                this.video = document.createElement('video');
+                this.video.setAttribute('autoplay', '');
+                this.video.setAttribute('playsinline', '');
+                this.video.style.position = 'absolute';
+                this.video.style.top = '0';
+                this.video.style.left = '0';
+                this.video.style.width = '1px'; // Nasconde il video
+                this.video.style.height = '1px';
+                document.body.appendChild(this.video);
 
-          modelEntity.addEventListener('loaded', () => {
-            resolve();
-          });
+                // Creazione canvas per elaborare l'immagine
+                this.canvas = document.createElement('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                document.body.appendChild(this.canvas);
 
-          modelEntity.addEventListener('error', (error) => {
-            reject(error);
-          });
+                this.startCamera();
+            },
+
+            async startCamera() {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: 640, height: 480 }
+                });
+
+                this.video.srcObject = stream;
+                this.video.onloadedmetadata = () => this.video.play();
+                
+                requestAnimationFrame(() => this.detectImage());
+            },
+
+            async detectImage() {
+                this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+                const predictions = await this.model.detect(this.video);
+
+                if (predictions.length > 0) {
+                    // Prendiamo il primo oggetto rilevato e ottimizziamo la posizione
+                    const target = predictions[0];
+
+                    // Stabilizzazione con Filtro di Kalman
+                    const stableX = this.kalmanFilter(target.bbox[0]);
+                    const stableY = this.kalmanFilter(target.bbox[1]);
+
+                    // Aggiorna posizione modello 3D in base al tracciamento
+                    document.querySelector('#tracked-model').setAttribute('position', `${stableX} ${stableY} 0`);
+                }
+
+                requestAnimationFrame(() => this.detectImage());
+            },
+
+            kalmanFilter(measurement) {
+                if (!this.kalman) {
+                    this.kalman = { estimate: measurement, error: 1, processNoise: 0.01 };
+                }
+                const K = this.kalman.error / (this.kalman.error + this.kalman.processNoise);
+                this.kalman.estimate += K * (measurement - this.kalman.estimate);
+                this.kalman.error *= (1 - K);
+                return this.kalman.estimate;
+            },
+
+            remove() {
+                this.video.pause();
+                this.video.srcObject.getTracks().forEach(track => track.stop());
+                document.body.removeChild(this.video);
+                document.body.removeChild(this.canvas);
+            }
         });
-      }
-
-      // Inizializza il rilevamento degli oggetti
-      async function runObjectDetection() {
-        const model = await cocoSsd.load(); // Carica il modello COCO-SSD
-        console.log("Modello caricato correttamente!");
-
-        const video = document.createElement('video'); // Crea un elemento video
-        const canvas = document.createElement('canvas'); // Crea un canvas
-        document.body.appendChild(canvas); // Aggiunge il canvas al corpo della pagina
-        const context = canvas.getContext('2d');
-        canvas.id = 'videoCanvas'; // Rendi il canvas fullscreen
-
-        // Funzione per inizializzare la webcam
-        async function setupCamera() {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true
-          });
-          video.srcObject = stream;
-          video.play();
-        }
-
-        // Funzione per rilevare gli oggetti nel video
-        async function detectObjects() {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-
-          // Rilevamento degli oggetti nel frame del video
-          const predictions = await model.detect(video);
-
-          // Disegna le bounding box per ogni oggetto rilevato
-          predictions.forEach(prediction => {
-            const [x, y, width, height] = prediction.bbox;
-            context.beginPath();
-            context.rect(x, y, width, height);
-            context.lineWidth = 2;
-            context.strokeStyle = 'red';
-            context.fillStyle = 'red';
-            context.stroke();
-            context.fillText(prediction.class, x, y > 10 ? y - 5 : 10);
-          });
-
-          requestAnimationFrame(detectObjects); // Rileva in loop
-        }
-
-        await setupCamera(); // Avvia la webcam
-        video.onloadeddata = () => {
-          canvas.width = video.videoWidth; // Imposta la larghezza del canvas
-          canvas.height = video.videoHeight; // Imposta l'altezza del canvas
-          detectObjects(); // Avvia il rilevamento oggetti
-        };
-      }
-
-      // Avvia il rilevamento quando la pagina è pronta
-      window.onload = function () {
-        runObjectDetection();
-        loadModel('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf')
-          .then(() => {
-            console.log("Modello caricato correttamente!");
-            document.getElementById('tracked-model').setAttribute('visible', 'true');
-          })
-          .catch(error => {
-            console.error("Errore nel caricamento del modello: ", error);
-            document.getElementById('tracked-model').setAttribute('visible', 'false');
-          });
-      };
     </script>
   </head>
 
@@ -159,7 +153,7 @@
       <a-light type="ambient" intensity="0.7"></a-light>
    
       <!-- Entità per il target AR e il modello 3D -->
-      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1">
+      <a-entity id="ar-target" mindar-image-target="targetIndex: 0;" position="0 0 0" rotation="0 0 0" scale="1 1 1"; image-tracker>
         <a-entity id="tracked-model" rotation="90 0 0" position="0 0 0" scale="2 2 2" gltf-model="#busto" class="clickable" animation__move="property: position; from: 0 0 0.25; to: 0 0 .75; dur: 1680; loop: true; dir: alternate; easing: easeInOutSine;"></a-entity>
         <a-entity gltf-model="#web" id="nextbutton" position="-.8 0 .5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
         <a-entity gltf-model="#phone" id="phoneButton" position="0 0 2.5" rotation="90 0 0" scale="1 1 1" class="clickable" visible="false"></a-entity>
