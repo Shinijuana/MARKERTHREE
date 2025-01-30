@@ -3,8 +3,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- TensorFlow.js & BodyPix -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/deeplab"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+
     <style>
       html, body {
         margin: 0;
@@ -96,13 +98,12 @@
       </a-entity>
       <a-entity segmentation-tracker></a-entity>
     </a-scene>
-     <script>
+    <script>
         AFRAME.registerComponent('segmentation-tracker', {
             init: async function () {
-                console.log("Caricamento TensorFlow DeepLabV3...");
-
-                this.model = await deeplab.load({ base: "pascal" });
-                console.log("Modello caricato!");
+                console.log("Caricamento TensorFlow BodyPix...");
+                this.model = await bodyPix.load();
+                console.log("Modello BodyPix caricato!");
 
                 this.video = document.getElementById('video');
                 this.segmentationCanvas = document.getElementById('segmentationCanvas');
@@ -124,12 +125,17 @@
                 this.segmentationCanvas.width = this.video.videoWidth;
                 this.segmentationCanvas.height = this.video.videoHeight;
 
-                const segmentation = await this.model.segment(this.video);
-                const mask = segmentation.segmentationMap;
+                const segmentation = await this.model.segmentPerson(this.video, {
+                    flipHorizontal: false,
+                    internalResolution: 'medium',
+                    segmentationThreshold: 0.5
+                });
+
+                const mask = segmentation.data;
 
                 const imageData = this.segmentationCtx.createImageData(this.video.videoWidth, this.video.videoHeight);
                 for (let i = 0; i < mask.length; i++) {
-                    if (mask[i] === 1) { // Qui puoi filtrare il biglietto da visita se conosci la classe corretta
+                    if (mask[i] === 0) {  // Segmenta il biglietto da visita
                         imageData.data[i * 4] = 255;   // Rosso
                         imageData.data[i * 4 + 1] = 0; // Verde
                         imageData.data[i * 4 + 2] = 0; // Blu
@@ -144,5 +150,6 @@
             }
         });
     </script>
+
   </body>
 </html>
