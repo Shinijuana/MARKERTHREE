@@ -3,11 +3,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-    <!-- Includere TensorFlow.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-
     <style>
       /* Assicurati che tutto lo schermo sia occupato senza margini */
       html, body {
@@ -32,41 +27,39 @@
     <script src="js/ending.js"></script>
     <script src="js/typewriting.js"></script>
     <script src="js/keepvisible.js"></script>
-
-    <!-- Aggiungi la logica TensorFlow.js -->
+   
     <script>
-      // Funzione di carico del modello COCO-SSD
-      async function loadModel() {
-        // Carica il modello di rilevamento oggetti
-        const model = await cocoSsd.load();
-        console.log("Modello caricato!");
+      // Funzione per caricare il modello
+      function loadModel(modelUrl) {
+        return new Promise((resolve, reject) => {
+          const modelEntity = document.createElement('a-entity');
+          modelEntity.setAttribute('gltf-model', modelUrl);
+          
+          // Simula il caricamento del modello
+          modelEntity.addEventListener('loaded', () => {
+            resolve();
+          });
 
-        // Inizia a fare previsioni sulla telecamera
-        detectFrame(model);
-      }
-
-      // Funzione per eseguire il rilevamento degli oggetti in tempo reale
-      async function detectFrame(model) {
-        const video = document.querySelector('video'); // Telecamera in tempo reale
-        const predictions = await model.detect(video);
-        
-        // Controlla se il tracker è stato rilevato
-        predictions.forEach(prediction => {
-          if (prediction.class === 'tracker') {  // Qui dovrai sostituire 'tracker' con la classe appropriata del tuo target
-            console.log("Tracker trovato!");
-            // Logica per avviare azioni quando il tracker è trovato
-            // Esempio: Mostra il modello 3D associato al tracker
-            document.getElementById("tracked-model").setAttribute("visible", "true");
-          }
+          modelEntity.addEventListener('error', (error) => {
+            reject(error);
+          });
         });
-
-        requestAnimationFrame(() => detectFrame(model));  // Continua a rilevare il prossimo frame
       }
 
-      // Carica il modello appena la pagina è pronta
-      window.onload = () => {
-        loadModel();
-      };
+      // Assicurati che la promessa venga gestita correttamente
+      window.onload = function () {
+        loadModel('https://raw.githack.com/Shinijuana/MARKERTHREE/main/assets/busto%20emilio.gltf')
+          .then(() => {
+            console.log("Modello caricato correttamente!");
+            // Aggiungi logica per attivare o visualizzare il modello
+            document.getElementById('tracked-model').setAttribute('visible', 'true');
+          })
+          .catch(error => {
+            console.error("Errore nel caricamento del modello: ", error);
+            // Gestisci il caso in cui il modello non venga caricato
+            document.getElementById('tracked-model').setAttribute('visible', 'false');
+          });
+      }
     </script>
   </head>
 
